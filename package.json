@@ -21,7 +21,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "amazon-cognito-identity-js": "^5.0.0",
+    "amazon-cognito-identity-js": "^4.6.3",
     "aws-lambda-fastify": "^1.4.4",
     "aws-sdk": "^2.906.0",
     "claudia-api-builder": "^4.1.2",

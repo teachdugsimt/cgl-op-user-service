@@ -88,12 +88,12 @@ export default class AuthenticationController {
           const userProfile = this.authenService.getUserProfile(username);
           const password: any = await utillity.decryptByKms(userInformation.password)
           console.log('password :>> ', password);
-          const token = await this.authenService.signin(username, password);
+          const token = this.authenService.signin(username, password);
           return {
             message: '',
             responseCode: 1,
             userProfile: await userProfile,
-            token: token,
+            token: await token,
             termOfService: {}
           }
         }

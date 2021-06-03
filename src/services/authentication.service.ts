@@ -131,7 +131,7 @@ export default class AuthenticationService {
         'REFRESH_TOKEN': token
       },
     };
-    return await cognitoidentityserviceprovider.initiateAuth(params).promise();
+    return cognitoidentityserviceprovider.initiateAuth(params).promise();
   }
 
   async getUserProfile(phoneNumber: string): Promise<any> {
