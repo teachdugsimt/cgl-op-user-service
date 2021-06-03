@@ -16,7 +16,7 @@ export default class UserDynamodbRepository {
       Item: data
     };
 
-    return await documentClient.put(params).promise();
+    return documentClient.put(params).promise();
   }
 
   // async findAllByMobileNo(mobileNo: string): Promise<any> {
@@ -45,8 +45,7 @@ export default class UserDynamodbRepository {
     };
 
     const { Item } = await documentClient.get(params).promise();
-    const result = Item && Object.keys(Item)?.length ? Item : null
-    return result
+    return Item && Object.keys(Item)?.length ? Item : null
   }
 
   async findByMobeilNo(mobileNo: string): Promise<any> {
@@ -58,8 +57,7 @@ export default class UserDynamodbRepository {
     };
 
     const { Item } = await documentClient.get(params).promise();
-    const result = Item && Object.keys(Item)?.length ? Item : null
-    return result
+    return Item && Object.keys(Item)?.length ? Item : null
   }
 
 }

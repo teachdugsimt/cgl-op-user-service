@@ -32,7 +32,10 @@
     "fastify-decorators": "^3.9.1",
     "fastify-plugin": "^3.0.0",
     "fastify-swagger": "^4.7.0",
-    "pino-pretty": "^4.7.1"
+    "hashids": "^2.2.8",
+    "pg": "^8.6.0",
+    "pino-pretty": "^4.7.1",
+    "typeorm": "^0.2.32"
   },
   "devDependencies": {
     "@commitlint/cli": "^12.1.1",

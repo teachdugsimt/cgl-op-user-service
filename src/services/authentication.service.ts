@@ -3,11 +3,13 @@ import * as AWS from 'aws-sdk'
 import * as AmazonCognitoIdentity from 'amazon-cognito-identity-js'
 import cryptoRandomString from 'crypto-random-string';
 import UserDynamodbRepository from "../repositories/user.dynamodb.repository";
+import UserRepository from '../repositories/user.repository'
 import Utillity from './util.service'
 
 const cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider();
 
 const userDynamoRepository = new UserDynamodbRepository();
+const userRepository = new UserRepository();
 const utillity = new Utillity();
 
 const UserPoolId = process.env.USER_POOL_ID || 'ap-southeast-1_gJ5IDZHTF';
@@ -33,7 +35,7 @@ const getCognitoToUser = (username: string) => {
   return new AmazonCognitoIdentity.CognitoUser(userData);
 };
 
-const signUp = async (username: string, password: string): Promise<any> => {
+const signUp = async (username: string, password: string, userId: string): Promise<any> => {
   const params = {
     UserPoolId: UserPoolId,
     Username: username,
@@ -42,7 +44,7 @@ const signUp = async (username: string, password: string): Promise<any> => {
     UserAttributes: [
       {
         Name: 'custom:userId',
-        Value: utillity.generateUpperUniqueId(8)
+        Value: userId
       }
     ]
   };
@@ -65,10 +67,6 @@ export default class AuthenticationService {
   async init(): Promise<void> {
   }
 
-  ping(): string {
-    return 'pong'
-  }
-
   generatePassword(length: number = 10): string {
     const randomPass = cryptoRandomString({ length: length, type: 'base64' });
     console.log('randomPass :>> ', randomPass);
@@ -77,7 +75,11 @@ export default class AuthenticationService {
 
   async createUser(username: string, password: string, mobileNo?: string): Promise<any> {
     try {
-      const signUpSuccess = await signUp(username, password);
+      const userData = await userRepository.create({
+        phoneNumber: username
+      });
+      console.log('userData :>> ', userData);
+      const signUpSuccess = await signUp(username, password, userData.id.toString());
       console.log('signUpSuccess :>> ', signUpSuccess);
       await setUserPassword(username, password);
       const encryptPassword = await utillity.encryptByKms(password)
@@ -130,6 +132,25 @@ export default class AuthenticationService {
       },
     };
     return await cognitoidentityserviceprovider.initiateAuth(params).promise();
+  }
+
+  async getUserProfile(phoneNumber: string): Promise<any> {
+    const filter = {
+      phoneNumber: phoneNumber,
+    }
+    const options = {
+      select: ['id', 'fullname', 'phone_number', 'email']
+    }
+    const userProfile = await userRepository.findOneByAttribute(filter, options);
+    return {
+      id: userProfile.id,
+      userId: utillity.generateUserId(userProfile.id),
+      companyName: userProfile.fullname,
+      fullname: userProfile.fullname,
+      mobileNo: userProfile.phone_number,
+      email: userProfile.email,
+      avatar: null
+    }
   }
 
   @Destructor()

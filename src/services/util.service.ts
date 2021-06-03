@@ -2,6 +2,7 @@ import { Service, Initializer, Destructor } from 'fastify-decorators';
 import * as AWS from 'aws-sdk'
 import cryptoRandomString from 'crypto-random-string';
 import * as crypto from 'crypto';
+import Hashids from 'hashids';
 
 const kms = new AWS.KMS()
 
@@ -13,7 +14,10 @@ export default class UtillityService {
   // async init(): Promise<void> {
   // }
 
+  private salt: string = 'secretkeyforcargolinkproject'
+
   public characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  public alphabet: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
 
   // [MOVE] to utillity layer
   async encryptByKms(source: string): Promise<string | undefined> {
@@ -35,7 +39,7 @@ export default class UtillityService {
   }
 
   // [MOVE] to utillity layer
-  generateUpperUniqueId(length: number = 6): string {
+  generateUniqueId(length: number = 6): string {
     return cryptoRandomString({ length: length, characters: this.characters })
   }
 
@@ -52,6 +56,12 @@ export default class UtillityService {
   // [MOVE] to utillity layer
   generateOtpSecretCode(source: string): string {
     return crypto.createHmac('sha256', source).digest('hex');
+  }
+
+  // [MOVE] to utillity layer
+  generateUserId(id: number): string {
+    const hashids = new Hashids(this.salt, 8, this.alphabet);
+    return hashids.encode(id);
   }
 
   @Destructor()
