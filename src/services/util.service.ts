@@ -82,6 +82,11 @@ export default class UtillityService {
     return data['userId']
   }
 
+  generateJwtToken(data: any): string {
+    const dataSign: string = jwt.sign(data, this.salt)
+    return dataSign
+  }
+
   @Destructor()
   async destroy(): Promise<void> {
   }

@@ -8,7 +8,8 @@ import {
   getUserByUserIdSchema,
   updateUserByUserIdSchema,
   addUserSchema,
-  deleteUserByUserIdSchema
+  deleteUserByUserIdSchema,
+  generateUploadLinkResponse
 } from './user.schema';
 import ValidateParam from '../services/validate-param.service'
 import TermOfServiceUserService from '../services/term-of-service-user.service'
@@ -222,6 +223,33 @@ export default class UserController {
       const userData = await userProfileRepository.findOne(id);
       await userDynamoRepository.delete(userData.phoneNumber);
       return await userProfileRepository.delete(id);
+    } catch (err) {
+      throw new Error(err)
+    }
+  }
+
+  @POST({
+    url: ':id/gen-doc-upload-link',
+    options: {
+      schema: generateUploadLinkResponse
+    }
+  })
+  async GenerateLinkUpload(req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply): Promise<any> {
+    try {
+      if (req.id) {
+        const addDays = (date: Date, days: number) => {
+          var result = new Date(date);
+          result.setDate(result.getDate() + days);
+          return result;
+        }
+        let now = new Date()
+        const data = { userId: req.id, expire: addDays(now, 2) }
+        console.log("Data to jwt :: ", data)
+        const base_url = "https://cargolink.com/user/upload?token="
+        const link = base_url + util.generateJwtToken(data)
+        console.log("Link  full :: ", link)
+        return { url: link }
+      }
     } catch (err) {
       throw new Error(err)
     }
