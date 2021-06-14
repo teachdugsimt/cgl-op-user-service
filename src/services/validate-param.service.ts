@@ -12,19 +12,27 @@ const ValidateParam = (schema: any) => (
 
     let properties: any = null;
     let param: any = null;
+    let requireField: any = null;
 
     if (request.raw.method === 'POST' || request.raw.method === 'PUT' || request.raw.method === 'PATCH') {
       properties = schema.body.properties;
+      requireField = schema.body.require;
       param = request.body;
     } else {
-      properties = schema.params.properties;
-      param = request.params
+      properties = schema.querystring.properties;
+      requireField = schema.querystring.require;
+      param = request.query
     }
 
-    for (const key in properties) {
-      if (param[key] === undefined || typeof param[key] !== properties[key].type) {
-        console.log('Parameter is valid')
-        throw new Error('Parameter is valid')
+    if (requireField) {
+      for (const key in requireField) {
+        if (!param[key] || param[key] === undefined) {
+          console.log(`Parameter ${key} is required`)
+          throw new Error(`Parameter ${key} is required`)
+        } else if (typeof param[key] !== properties[key].type) {
+          console.log(`Parameter ${key} does not support type ${typeof param[key]}`)
+          throw new Error(`Parameter ${key} does not support type ${typeof param[key]}`)
+        }
       }
     }
 

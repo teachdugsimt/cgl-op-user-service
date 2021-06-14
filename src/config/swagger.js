@@ -4,16 +4,16 @@ module.exports = {
     info: {
       title: 'Template API',
       description: 'Template API',
-      version: '1.0.0'
+      version: '1.0.0',
     },
     host: 'localhost:3000',
     schemes: ['http'],
     consumes: ['application/json'],
-    produces: ['application/json']
+    produces: ['application/json'],
   },
   uiConfig: {
-    docExpansion: 'full',
-    deepLinking: false
+    docExpansion: 'list',
+    deepLinking: false,
   },
-  exposeRoute: true
-}
+  exposeRoute: true,
+};

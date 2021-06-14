@@ -3,10 +3,9 @@ import * as AWS from 'aws-sdk'
 import cryptoRandomString from 'crypto-random-string';
 import * as crypto from 'crypto';
 import Hashids from 'hashids';
+import * as jwt from 'jsonwebtoken';
 
 const kms = new AWS.KMS()
-
-const masterKeyId = process.env.MASTER_KEY_ID || 'arn:aws:kms:ap-southeast-1:911597493577:key/45154f8b-8eb2-4e8d-b569-53ab834ebba3'
 
 @Service()
 export default class UtillityService {
@@ -15,6 +14,8 @@ export default class UtillityService {
   // }
 
   private salt: string = 'secretkeyforcargolinkproject'
+  private saltResetPass: string = 'secretkeyforcargolinkresetpassword'
+  private masterKeyId = process.env.MASTER_KEY_ID || 'arn:aws:kms:ap-southeast-1:029707422715:key/f3f1a976-a2f4-4fb0-a4db-a7d0cbd59f4b'
 
   public characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   public alphabet: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
@@ -22,7 +23,7 @@ export default class UtillityService {
   // [MOVE] to utillity layer
   async encryptByKms(source: string): Promise<string | undefined> {
     const params = {
-      KeyId: masterKeyId,
+      KeyId: this.masterKeyId,
       Plaintext: source,
     };
     const { CiphertextBlob } = await kms.encrypt(params).promise();
@@ -59,9 +60,26 @@ export default class UtillityService {
   }
 
   // [MOVE] to utillity layer
-  generateUserId(id: number): string {
+  generatePassword(length: number = 10): string {
+    return cryptoRandomString({ length: length, type: 'base64' });
+  }
+
+  // [MOVE] to utillity layer
+  encodeUserId(id: number): string {
     const hashids = new Hashids(this.salt, 8, this.alphabet);
     return hashids.encode(id);
+  }
+
+  // [MOVE] to utillity layer
+  decodeUserId(cipherText: string): any {
+    const hashids = new Hashids(this.salt, 8, this.alphabet);
+    return hashids.decode(cipherText)[0]
+  }
+
+  // [MOVE] to utillity layer
+  getUserIdByToken(token: string): any {
+    const data: any = jwt.decode(token);
+    return data['userId']
   }
 
   @Destructor()

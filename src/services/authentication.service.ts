@@ -3,7 +3,7 @@ import * as AWS from 'aws-sdk'
 import * as AmazonCognitoIdentity from 'amazon-cognito-identity-js'
 import cryptoRandomString from 'crypto-random-string';
 import UserDynamodbRepository from "../repositories/user.dynamodb.repository";
-import UserRepository from '../repositories/user.repository'
+import UserRepository from '../repositories/user-profile.repository'
 import Utillity from './util.service'
 
 const cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider();
@@ -75,7 +75,7 @@ export default class AuthenticationService {
 
   async createUser(username: string, password: string, mobileNo?: string): Promise<any> {
     try {
-      const userData = await userRepository.create({
+      const userData = await userRepository.add({
         phoneNumber: username
       });
       console.log('userData :>> ', userData);
@@ -92,7 +92,7 @@ export default class AuthenticationService {
       }
       const userDynamo = await userDynamoRepository.create(userAttribute);
       console.log('userDynamo :>> ', userDynamo);
-      return userDynamo;
+      return userData;
     } catch (err) {
       console.log('err :>> ', err);
       const errorMessage: any = { code: 'CREATE_USER_ERROR', message: 'Cannot create user' }
@@ -144,7 +144,7 @@ export default class AuthenticationService {
     const userProfile = await userRepository.findOneByAttribute(filter, options);
     return {
       id: userProfile.id,
-      userId: utillity.generateUserId(userProfile.id),
+      userId: utillity.encodeUserId(userProfile.id),
       companyName: userProfile.fullname,
       fullname: userProfile.fullname,
       mobileNo: userProfile.phone_number,

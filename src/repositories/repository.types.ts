@@ -1,5 +1,5 @@
 
-export interface UserDataCreateType {
+export interface UserDataCreateEntity {
   // id: string;
 
   confirmationToken?: string;
@@ -118,13 +118,100 @@ export interface UserDataCreateType {
 
   rejectNote?: string;
 
-  is_locked?: boolean;
+  isLocked?: boolean;
 
-  account_type?: number;
+  accountType?: number;
 
-  approve_status?: number
+  approveStatus?: number
 
-  is_deleted?: boolean
+  isDeleted?: boolean
 
   version?: number
+}
+
+export interface UserRoleCreateEntity {
+  userId: number
+
+  roleId: number
+}
+
+export interface TermOfServiceAddEntity {
+  versionNumber: string
+
+  data: string
+
+  isActive?: boolean
+
+  version: number
+
+  createdAt?: Date
+
+  updatedAt?: Date
+
+  createdUser?: string
+
+  updatedUser?: string
+
+  isDeleted?: boolean
+}
+
+export interface TermOfServiceFindEntity {
+  userId: number
+
+  termOfServiceId?: number
+}
+
+export interface TermOfServiceUserFindEntity {
+  userId: number
+
+  termOfServiceId?: number
+
+  version?: string
+}
+
+export interface TermOfServiceUserAddEntity {
+  termOfServiceId: number
+
+  userId: number
+
+  version: string
+
+  createdAt?: Date
+
+  updatedAt?: Date
+
+  createdUser?: string
+
+  updatedUser?: string
+
+  isDeleted?: boolean
+}
+
+export interface UserProfileCreateEntity {
+  // id: string;
+
+  confirmationToken?: string;
+
+  email?: string;
+
+  phoneNumber?: string;
+
+  fullname?: string;
+
+  enabled?: boolean;
+
+  userType?: number;
+
+  avatar?: string;
+
+  deviceToken?: string;
+
+  createdAt?: Date;
+
+  updatedAt?: Date;
+
+  createdBy?: string;
+
+  updatedBy?: string;
+
 }

@@ -1,6 +1,16 @@
 import 'reflect-metadata';
 import { Connection, createConnection } from 'typeorm';
-import { Role, Resource, ResourceAction, UserRole, Users, VwUserRole, VwUserRoleResource, UserTest } from '../models';
+import {
+  Role,
+  Resource,
+  ResourceAction,
+  UserRole,
+  VwUserRole,
+  VwUserRoleResource,
+  TermOfService,
+  TermOfServiceUser,
+  UserProfile
+} from '../models';
 import * as fs from 'fs';
 import fp from 'fastify-plugin';
 
@@ -13,6 +23,8 @@ interface ConnectionResponse {
   vwUserRole: any
   vwUserRoleResource: any
   userTest: any
+  termOfService: any
+  termOfServiceUser: any
 }
 
 // const connection = async (): Promise<ConnectionResponse | undefined> => {
@@ -47,16 +59,18 @@ export default fp(async server => {
     console.log("Step 1 : connectionn database")
     // const connection = await createConnection(await config);
     const connection = await createConnection();
-    console.log('database connected :: ', connection);
+    // console.log('database connected :: ', connection);
     server.decorate('db', {
       role: connection.getRepository(Role),
       resource: connection.getRepository(Resource),
       resourceAction: connection.getRepository(ResourceAction),
       userRole: connection.getRepository(UserRole),
-      users: connection.getRepository(Users),
+      users: connection.getRepository(UserProfile),
       vwUserRole: connection.getRepository(VwUserRole),
       vwUserRoleResource: connection.getRepository(VwUserRoleResource),
-      userTest: connection.getRepository(UserTest)
+      termOfService: connection.getRepository(TermOfService),
+      termOfServiceUser: connection.getRepository(TermOfServiceUser),
+      userProfile: connection.getRepository(UserProfile),
     });
   } catch (error) {
     console.log(error);

@@ -1,6 +1,5 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Index("role_pkey", ["id"], { unique: true })
 @Entity("role", { schema: "public" })
 export class Role {
   @PrimaryGeneratedColumn({ type: "bigint", name: "id" })
@@ -10,16 +9,10 @@ export class Role {
     name: "fullname",
     nullable: true,
     length: 255,
-    default: () => "NULL::character varying",
   })
   fullname!: string | null;
 
-  @Column("character varying", {
-    name: "name",
-    nullable: true,
-    length: 255,
-    default: () => "NULL::character varying",
-  })
+  @Column("character varying", { name: "name", nullable: true, length: 255 })
   name!: string | null;
 
   @Column("integer", { name: "version", default: () => "0" })
@@ -40,20 +33,18 @@ export class Role {
   updatedAt!: Date | null;
 
   @Column("character varying", {
-    name: "created_user",
+    name: "created_by",
     nullable: true,
-    length: 254,
-    default: () => "NULL::character varying",
+    length: 120,
   })
-  createdUser!: string | null;
+  createdBy!: string | null;
 
   @Column("character varying", {
-    name: "updated_user",
+    name: "updated_by",
     nullable: true,
-    length: 254,
-    default: () => "NULL::character varying",
+    length: 120,
   })
-  updatedUser!: string | null;
+  updatedBy!: string | null;
 
   @Column("boolean", { name: "is_deleted", default: () => "false" })
   isDeleted!: boolean;
