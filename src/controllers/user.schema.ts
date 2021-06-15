@@ -209,3 +209,17 @@ export const deleteUserByUserIdSchema: FastifySchema = {
     }
   }
 }
+
+export const generateUploadLinkResponse: FastifySchema = {
+  // body: {},
+  params: {
+    id: { type: 'string' }
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: { url: { type: 'string' } },
+      additionalProperties: false
+    }
+  }
+}
