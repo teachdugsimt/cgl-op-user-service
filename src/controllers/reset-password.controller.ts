@@ -2,7 +2,8 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { Controller, DELETE, GET, getInstanceByToken, PATCH, POST } from 'fastify-decorators';
 import {
   resetConfirm,
-  resetRequest
+  resetRequest,
+  validateToken
 } from './reset-password.schema';
 import UserProfileRepository from '../repositories/user-profile.repository';
 import UserDynamoRepository from '../repositories/user.dynamodb.repository'
@@ -10,7 +11,6 @@ import UtillityService from '../services/util.service';
 import BuildResponse from 'utility-layer/dist/build-response'
 import UserService from '../services/user.service';
 import UserResetPasswordDynamoRepository from '../repositories/user-reset-password.dynamodb.repository'
-import axios from 'axios';
 
 const userProfileRepository = new UserProfileRepository();
 const userDynamoRepository = new UserDynamoRepository();
@@ -26,7 +26,7 @@ export default class ResetPasswordController {
   @GET({
     url: '/validate-token',
     options: {
-      schema: resetRequest
+      schema: validateToken
     }
   })
   async ValidateToken(req: FastifyRequest<{ Querystring: { token: string } }>, reply: FastifyReply): Promise<object> {
@@ -70,24 +70,18 @@ export default class ResetPasswordController {
         const userResetPassInfo = await userResetPassDynamoRepository.findById(userId);
         const token = util.generateRefCode(32);
         if (userResetPassInfo) {
-          if (userResetPassInfo.expire > Math.floor(Date.now() / 1000)) {
-            // UPDATE TOKEN
-            await userResetPassDynamoRepository.update({
-              id: userId,
-              token: token,
-              expire: Math.floor(Date.now() / 1000)
-            });
+          await userResetPassDynamoRepository.update({
+            id: userId,
+            token: token,
+            expire: Math.floor((Date.now() + (24 * 60 * 60 * 1000)) / 1000)
+          });
 
-            return {
-              statusCode: 200,
-              message: 'REQUEST_SUCCESS',
-              alreadySent: true
-            }
-          }
+          await this.userService.sendEmailForResetPassword(email, token);
+
           return {
-            statusCode: 400,
-            message: 'REQUEST_FAILURE',
-            alreadySent: false
+            statusCode: 200,
+            message: 'REQUEST_SUCCESS',
+            alreadySent: true
           }
         }
 
@@ -95,8 +89,10 @@ export default class ResetPasswordController {
         await userResetPassDynamoRepository.create({
           id: userId,
           token: token,
-          expire: Math.floor(Date.now() / 1000)
-        })
+          expire: Math.floor((Date.now() + (24 * 60 * 60 * 1000)) / 1000)
+        });
+
+        await this.userService.sendEmailForResetPassword(email, token);
 
         return {
           statusCode: 200,
@@ -131,6 +127,7 @@ export default class ResetPasswordController {
             // RESET PASSWORD
             const userProfile = await userProfileRepository.findOne(userInfo.id, { select: ['email'] });
             await this.userService.resetPassword(userProfile.email, password);
+            await userResetPassDynamoRepository.delete(userInfo.id);
             return {
               statusCode: 200,
               message: 'REQUEST_SUCCESS'

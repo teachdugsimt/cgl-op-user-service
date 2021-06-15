@@ -6,14 +6,26 @@ import UserDynamodbRepository from "../repositories/user.dynamodb.repository";
 import UserRepository from '../repositories/user-profile.repository'
 import Utillity from './util.service'
 
+interface FilterUserProfile {
+  phoneNumber?: string
+  email?: string
+}
+
+interface NewTokenGenerate {
+  accessToken?: string
+  expiresIn?: number
+  tokenType?: string
+  idToken?: string
+}
+
 const cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider();
 
 const userDynamoRepository = new UserDynamodbRepository();
 const userRepository = new UserRepository();
 const utillity = new Utillity();
 
-const UserPoolId = process.env.USER_POOL_ID || 'ap-southeast-1_gJ5IDZHTF';
-const AppClient = process.env.CLIENT_ID || '1ivatr3het7akcs4kdkmv0vagi';
+const UserPoolId = process.env.USER_POOL_ID || 'ap-southeast-1_tfXXNZA76';
+const AppClient = process.env.CLIENT_ID || '3iqf16fagbki1nlnuvcgdaah98';
 
 const getTokens = (tokens: any) => {
   return {
@@ -123,7 +135,7 @@ export default class AuthenticationService {
     });
   };
 
-  async refreshToken(token: string) {
+  async refreshToken(token: string): Promise<NewTokenGenerate | undefined> {
     const params = {
       AuthFlow: 'REFRESH_TOKEN_AUTH',
       ClientId: AppClient,
@@ -131,15 +143,18 @@ export default class AuthenticationService {
         'REFRESH_TOKEN': token
       },
     };
-    return cognitoidentityserviceprovider.initiateAuth(params).promise();
+    const { AuthenticationResult } = await cognitoidentityserviceprovider.initiateAuth(params).promise();
+    return {
+      accessToken: AuthenticationResult?.AccessToken,
+      expiresIn: AuthenticationResult?.ExpiresIn,
+      tokenType: AuthenticationResult?.TokenType,
+      idToken: AuthenticationResult?.IdToken,
+    }
   }
 
-  async getUserProfile(phoneNumber: string): Promise<any> {
-    const filter = {
-      phoneNumber: phoneNumber,
-    }
+  async getUserProfile(filter: FilterUserProfile): Promise<any> {
     const options = {
-      select: ['id', 'fullname', 'phone_number', 'email']
+      select: ['id', 'fullname', 'phoneNumber', 'email']
     }
     const userProfile = await userRepository.findOneByAttribute(filter, options);
     return {

@@ -23,15 +23,21 @@ export default class TermOfServiceUserService {
       order: {
         versionNumber: 'DESC'
       },
-      skip: 1
+      take: 1,
+      skip: 0
     });
 
     const termOfService = termOfServiceLastVersion[0]
+    let termOfServiceUser: any
 
-    const termOfServiceUser = await this.termOfServiceUserRepository.findOnWithOptions({
-      termOfServiceId: termOfService.id,
-      userId: userId,
-    })
+    try {
+      termOfServiceUser = await this.termOfServiceUserRepository.findOnWithOptions({
+        termOfServiceId: termOfService.id,
+        userId: userId,
+      });
+    } catch (err) {
+      termOfServiceUser = {}
+    }
 
     return {
       version: termOfService.versionNumber,

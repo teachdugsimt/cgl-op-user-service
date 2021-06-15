@@ -3,7 +3,7 @@ import * as AWS from 'aws-sdk'
 
 const pinpoint = new AWS.Pinpoint()
 
-const projectId = process.env.SMS_ID || 'd693f0b4ac0a4b6e9f71271d64cd7274'
+const projectId = process.env.SMS_ID || '89c3aae913d046d98681b7d4cd80962a'
 
 @Service()
 export default class SmsService {

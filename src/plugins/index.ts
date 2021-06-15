@@ -65,7 +65,6 @@ export default fp(async server => {
       resource: connection.getRepository(Resource),
       resourceAction: connection.getRepository(ResourceAction),
       userRole: connection.getRepository(UserRole),
-      users: connection.getRepository(UserProfile),
       vwUserRole: connection.getRepository(VwUserRole),
       vwUserRoleResource: connection.getRepository(VwUserRoleResource),
       termOfService: connection.getRepository(TermOfService),

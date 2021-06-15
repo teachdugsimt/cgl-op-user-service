@@ -43,6 +43,7 @@ export default class AuthenticationController {
       // if (body && body?.countryCode && body?.phoneNumber) {
       const username = countryCode.trim() + phoneNumber.trim();
       const userInformation = await userDynamoRepository.findByUsername(username);
+      console.log('userInformation :>> ', userInformation);
       // const userInfoByMobileNo = await userDynamoRepository.findByMobeilNo(username);
 
       // if (!userInformation || !userInfoByMobileNo) {
@@ -74,7 +75,11 @@ export default class AuthenticationController {
 
     } catch (err) {
       console.log('err :>> ', err);
-      return {}
+      return {
+        statusCode: err?.statusCode || 400,
+        code: err?.code || 'NotFoundException',
+        message: err?.message || 'User not found'
+      }
     }
   }
 
@@ -95,8 +100,8 @@ export default class AuthenticationController {
         const userInformation = await userDynamoRepository.findByUsername(username);
         console.log('userInformation :>> ', userInformation);
         if (userInformation) {
-          const userProfile = await this.authenService.getUserProfile(username);
-          const termOfService = this.termOfServiceUserService.getTermOfServiceByUser(userProfile.id)
+          const userProfile = await this.authenService.getUserProfile({ phoneNumber: username });
+          const termOfService = this.termOfServiceUserService.getTermOfServiceByUser(userProfile.id);
           const password: any = await utillity.decryptByKms(userInformation.password)
           console.log('password :>> ', password);
           const token = await this.authenService.signin(username, password);
@@ -105,7 +110,7 @@ export default class AuthenticationController {
             responseCode: 1,
             userProfile: userProfile,
             token: token,
-            termOfService: termOfService
+            termOfService: await termOfService
           }
         }
         throw new Error('Invalid Phone Number')
@@ -132,7 +137,7 @@ export default class AuthenticationController {
       const userInformation = await userDynamoRepository.findByUsername(email);
       console.log('userInformation :>> ', userInformation);
       if (userInformation) {
-        const userProfile = await this.authenService.getUserProfile(email);
+        const userProfile = await this.authenService.getUserProfile({ email });
         const termOfService = this.termOfServiceUserService.getTermOfServiceByUser(userProfile.id)
         // const password: any = await utillity.decryptByKms(userInformation.password)
         const token = await this.authenService.signin(email, password);
@@ -141,17 +146,22 @@ export default class AuthenticationController {
           responseCode: 1,
           userProfile: userProfile,
           token: token,
-          termOfService: termOfService
+          termOfService: await termOfService
         }
       }
-      return {
-        message: 'Invalid username or password',
-        responseCode: 0,
-        userProfile: {},
-        token: {},
-        termOfService: {}
+      throw {
+        statusCode: 400,
+        error: 'NotAuthorizedException',
+        message: 'Incorrect username or password.',
       }
     } catch (err) {
+      if (err?.code === 'NotAuthorizedException') {
+        throw {
+          statusCode: 400,
+          error: err.code,
+          message: err?.message || 'Incorrect username or password.',
+        }
+      }
       throw new Error(err)
     }
   }
@@ -167,10 +177,19 @@ export default class AuthenticationController {
     try {
       const tokens = await this.authenService.refreshToken(req.body.refreshToken);
       console.log('tokens :>> ', tokens);
-      return tokens;
+      return {
+        idToken: tokens?.idToken,
+        accessToken: tokens?.accessToken,
+      };
     } catch (err) {
       throw new Error(err)
     }
   }
 
 }
+
+// aws cognito-idp admin-set-user-password \
+//   --user-pool-id "ap-southeast-1_tfXXNZA76" \
+//   --username "atillart1003@gmail.com" \
+//   --password "111111111" \
+//   --permanent

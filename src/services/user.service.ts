@@ -4,6 +4,7 @@ import UserDynamodbRepository from "../repositories/user.dynamodb.repository";
 import UserProfileRepository from '../repositories/user-profile.repository'
 import UserRoleService from './user-role.service'
 import Utillity from './util.service'
+import axios from 'axios';
 
 interface AddNormalUser {
   phoneNumber: string
@@ -94,6 +95,23 @@ export default class UserService {
       username: username,
       password: encryptPassword
     })
+  }
+
+  async sendEmailForResetPassword(email: string, token: string): Promise<any> {
+    const mainUrl = process.env.MESSAGING_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod/api/v1/messaging';
+    const link = `https://infiltech.org/?token=${token}`;
+    await axios.post(`${mainUrl}/email/send`, {
+      email: email,
+      subject: 'Reset your password for CargoLink',
+      bodyText: `<p>Hello,</p>
+
+      <p>Follow this link to reset your CargoLink password for your ${email} account.</p>
+      <a href="${link}" target="_bank">${link}</a>
+      <p>If you didn't ask to reset your passworrd, you can ignore this email.</p>
+      
+      <p>Thanks,</p>
+      <p>CargoLink team</p>`
+    });
   }
 
   @Destructor()

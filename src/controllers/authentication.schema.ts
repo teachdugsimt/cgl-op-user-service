@@ -38,7 +38,7 @@ export const otpVerifySchema: FastifySchema = {
         accessToken: { type: 'string' },
         refreshToken: { type: 'string' },
       },
-      additionalProperties: false
+      additionalProperties: true
     }
   }
 }
@@ -57,7 +57,6 @@ export const refreshTokenSchema: FastifySchema = {
       properties: {
         idToken: { type: 'string' },
         accessToken: { type: 'string' },
-        refreshToken: { type: 'string' },
       },
       additionalProperties: false
     }
@@ -80,7 +79,7 @@ export const loginSchema: FastifySchema = {
         accessToken: { type: 'string' },
         refreshToken: { type: 'string' },
       },
-      additionalProperties: false
+      additionalProperties: true
     }
   }
 }
