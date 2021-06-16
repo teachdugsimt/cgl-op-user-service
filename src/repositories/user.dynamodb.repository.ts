@@ -84,4 +84,63 @@ export default class UserDynamodbRepository {
 
     return documentClient.delete(params).promise();
   }
+
+  // async deleteAttachRow(): Promise<any> {
+  //   let itemsArray: any = [{ DeleteRequest: { Key: { 'attach_code': '...1' } } },
+  //   { DeleteRequest: { Key: { 'attach_code': '...2' } } }];
+
+  //   var params = {
+  //     RequestItems: {
+  //       'cgl_attach_code': itemsArray
+  //     }
+  //   };
+  //   documentClient.batchWrite(params, function (err, data) {
+  //     if (err) {
+  //       console.log('Batch delete unsuccessful ...');
+  //       console.log(err, err.stack); // an error occurred
+  //     } else {
+  //       console.log('Batch delete successful ...');
+  //       console.log(data); // successful response
+  //     }
+
+  //   })
+  // }
+
+  async createUploadLinkData(objectLink: UploadLink): Promise<any> {
+    const params = {
+      TableName: process.env.UPLOAD_LINK_DYNAMO || 'cgl_user_upload_link',
+      Item: objectLink
+    };
+
+    return documentClient.put(params).promise();
+  }
+
+  async deleteUploadLink(user_id: string): Promise<any> {
+    const params = {
+      TableName: process.env.UPLOAD_LINK_DYNAMO || 'cgl_user_upload_link',
+      Key: {
+        user_id
+      }
+    };
+
+    return documentClient.delete(params).promise();
+  }
+
+  async findAttachCodeWithUser(user_id: string): Promise<any> {
+    const params = {
+      TableName: process.env.UPLOAD_LINK_DYNAMO || 'cgl_user_upload_link',
+      Key: {
+        user_id,
+      },
+    };
+
+    const { Item } = await documentClient.get(params).promise();
+    return Item && Object.keys(Item)?.length ? Item : null
+  }
+
+}
+
+export interface UploadLink {
+  token: string
+  user_id: string
 }
