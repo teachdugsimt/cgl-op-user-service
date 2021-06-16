@@ -3,7 +3,7 @@ import * as AWS from 'aws-sdk'
 import UserDynamodbRepository from "../repositories/user.dynamodb.repository";
 import UserProfileRepository from '../repositories/user-profile.repository'
 import UserRoleService from './user-role.service'
-import Utillity from './util.service'
+import Utility from 'utility-layer/src/helper/security'
 import axios from 'axios';
 
 interface AddNormalUser {
@@ -21,9 +21,9 @@ const cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider();
 const userDynamoRepository = new UserDynamodbRepository();
 const userProfileRepository = new UserProfileRepository();
 const userRoleService = new UserRoleService();
-const utillity = new Utillity();
+const utility = new Utility();
 
-const UserPoolId = process.env.USER_POOL_ID || 'ap-southeast-1_tfXXNZA76';
+const UserPoolId = process.env.USER_POOL_ID || '';
 
 const signUp = async (username: string, password: string, userId: string): Promise<any> => {
   const params = {
@@ -67,12 +67,12 @@ export default class UserService {
       }
       const userData = await userProfileRepository.add(data);
       console.log('userData :>> ', userData);
-      const password = utillity.generatePassword(12);
-      const userId = utillity.encodeUserId(userData.id.toString());
+      const password = utility.generatePassword(12);
+      const userId = utility.encodeUserId(userData.id.toString());
       const signUpSuccess = await signUp(username, password, userId);
       console.log('signUpSuccess :>> ', signUpSuccess);
       await setUserPassword(username, password);
-      const encryptPassword = await utillity.encryptByKms(password)
+      const encryptPassword = await utility.encryptByKms(password, process.env.MASTER_KEY_ID || '')
       const userAttribute: any = {
         username,
         password: encryptPassword,
@@ -89,7 +89,7 @@ export default class UserService {
   }
 
   async resetPassword(username: string, password: string): Promise<any> {
-    const encryptPassword: any = await utillity.encryptByKms(password);
+    const encryptPassword: any = await utility.encryptByKms(password, process.env.MASTER_KEY_ID || '');
     await setUserPassword(username, password);
     return await userDynamoRepository.update({
       username: username,

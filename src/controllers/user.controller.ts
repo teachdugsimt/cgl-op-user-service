@@ -16,7 +16,7 @@ import TermOfServiceUserService from '../services/term-of-service-user.service'
 import UserProfileRepository from '../repositories/user-profile.repository';
 import UserDynamoRepository from '../repositories/user.dynamodb.repository'
 import { FindManyOptions, FindOperator, Like } from 'typeorm';
-import UtillityService from '../services/util.service';
+import Utility from 'utility-layer/src/helper/security'
 import BuildResponse from 'utility-layer/dist/build-response'
 import UserService from '../services/user.service';
 
@@ -30,7 +30,7 @@ interface UserFilterCondition {
 const userProfileRepository = new UserProfileRepository();
 const userDynamoRepository = new UserDynamoRepository();
 const buildResponse = new BuildResponse()
-const util = new UtillityService();
+const util = new Utility();
 
 @Controller({ route: '/api/v1/users' })
 export default class UserController {

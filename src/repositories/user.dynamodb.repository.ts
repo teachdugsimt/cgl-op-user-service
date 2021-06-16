@@ -10,9 +10,11 @@ const documentClient = new AWS.DynamoDB.DocumentClient()
 
 export default class UserDynamodbRepository {
 
+  private tableName: string = process.env.USER_TABLE || ''
+
   async create(data: UserCreate): Promise<any> {
     const params = {
-      TableName: process.env.USER_DYNAMO || 'cgl_user_test',
+      TableName: this.tableName,
       Item: data
     };
 
@@ -21,7 +23,7 @@ export default class UserDynamodbRepository {
 
   // async findAllByMobileNo(phoneNumber: string): Promise<any> {
   //   const params = {
-  //     TableName: process.env.USER_DYNAMO || 'cgl_user_test',
+  //     TableName: this.tableName,
   //     FilterExpression: "attribute_not_exists(phoneNumber) or phoneNumber = :null",
   //     ExpressionAttributeValues: {
   //         ':null': null
@@ -38,7 +40,7 @@ export default class UserDynamodbRepository {
 
   async findByUsername(username: string): Promise<any> {
     const params = {
-      TableName: process.env.USER_DYNAMO || 'cgl_user_test',
+      TableName: this.tableName,
       Key: {
         username: username,
       },
@@ -50,7 +52,7 @@ export default class UserDynamodbRepository {
 
   async findByMobeilNo(phoneNumber: string): Promise<any> {
     const params = {
-      TableName: process.env.USER_DYNAMO || 'cgl_user_test',
+      TableName: this.tableName,
       Key: {
         phoneNumber: phoneNumber,
       },
@@ -63,7 +65,7 @@ export default class UserDynamodbRepository {
   async update(data: UserCreate): Promise<any> {
     const { username, password } = data
     const params = {
-      TableName: process.env.USER_DYNAMO || 'cgl_user_test',
+      TableName: this.tableName,
       Key: { username: username },
       UpdateExpression: 'set password = :newPassword',
       ExpressionAttributeValues: {
@@ -76,7 +78,7 @@ export default class UserDynamodbRepository {
 
   async delete(username: string): Promise<any> {
     const params = {
-      TableName: process.env.USER_DYNAMO || 'cgl_user_test',
+      TableName: this.tableName,
       Key: {
         username: username,
       }

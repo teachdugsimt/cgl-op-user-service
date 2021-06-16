@@ -3,6 +3,9 @@ import * as AWS from 'aws-sdk';
 const documentClient = new AWS.DynamoDB.DocumentClient()
 
 export default class OtpRepository {
+
+  private tableName: string = process.env.OTP_TABLE || ''
+
   /**
    * 
    * @param variant value of hash
@@ -12,7 +15,7 @@ export default class OtpRepository {
   async create(variant: string, expire: number = 90): Promise<any> {
     const timeToExpire = expire * 1000;
     const params = {
-      TableName: process.env.OTP_DYNAMO || 'cgl_otp_test',
+      TableName: this.tableName,
       Item: {
         variant: variant,
         expire: Math.floor((Date.now() + timeToExpire) / 1000)
@@ -24,7 +27,7 @@ export default class OtpRepository {
 
   async findByVariant(variant: string): Promise<any> {
     const params = {
-      TableName: process.env.OTP_DYNAMO || 'cgl_otp_test',
+      TableName: this.tableName,
       Key: {
         variant: variant,
       },

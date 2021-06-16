@@ -1,7 +1,7 @@
 import { Service, Initializer, Destructor, getInstanceByToken } from 'fastify-decorators';
 import TermOfServiceUserRepository from '../repositories/term-of-service-user.repository'
 import TermOfServiceRepository from '../repositories/term-of-service.repository'
-import UtillityService from './util.service'
+import Utility from 'utility-layer/src/helper/security'
 
 // const termOfServiceRepository = new TermOfServiceRepository();
 // const termOfServiceUserRepository = new TermOfServiceUserRepository();
@@ -12,7 +12,7 @@ export default class TermOfServiceUserService {
 
   private termOfServiceRepository = new TermOfServiceRepository()
   private termOfServiceUserRepository = new TermOfServiceUserRepository();
-  private util = new UtillityService();
+  private util = new Utility();
 
   @Initializer()
   async init(): Promise<void> {

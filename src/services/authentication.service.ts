@@ -4,7 +4,7 @@ import * as AmazonCognitoIdentity from 'amazon-cognito-identity-js'
 import cryptoRandomString from 'crypto-random-string';
 import UserDynamodbRepository from "../repositories/user.dynamodb.repository";
 import UserRepository from '../repositories/user-profile.repository'
-import Utillity from './util.service'
+import Utility from 'utility-layer/src/helper/security'
 
 interface FilterUserProfile {
   phoneNumber?: string
@@ -22,10 +22,10 @@ const cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider();
 
 const userDynamoRepository = new UserDynamodbRepository();
 const userRepository = new UserRepository();
-const utillity = new Utillity();
+const utility = new Utility();
 
-const UserPoolId = process.env.USER_POOL_ID || 'ap-southeast-1_tfXXNZA76';
-const AppClient = process.env.CLIENT_ID || '3iqf16fagbki1nlnuvcgdaah98';
+const UserPoolId = process.env.USER_POOL_ID || '';
+const AppClient = process.env.CLIENT_ID || '';
 
 const getTokens = (tokens: any) => {
   return {
@@ -94,7 +94,7 @@ export default class AuthenticationService {
       const signUpSuccess = await signUp(username, password, userData.id.toString());
       console.log('signUpSuccess :>> ', signUpSuccess);
       await setUserPassword(username, password);
-      const encryptPassword = await utillity.encryptByKms(password)
+      const encryptPassword = await utility.encryptByKms(password, process.env.MASTER_KEY_ID || '')
       let userAttribute: any = {
         username,
         password: encryptPassword,
@@ -159,7 +159,7 @@ export default class AuthenticationService {
     const userProfile = await userRepository.findOneByAttribute(filter, options);
     return {
       id: userProfile.id,
-      userId: utillity.encodeUserId(userProfile.id),
+      userId: utility.encodeUserId(userProfile.id),
       companyName: userProfile.fullname,
       fullname: userProfile.fullname,
       mobileNo: userProfile.phone_number,

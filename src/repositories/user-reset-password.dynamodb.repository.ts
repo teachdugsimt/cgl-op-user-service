@@ -8,13 +8,13 @@ interface UserResetPassEntity {
 
 const documentClient = new AWS.DynamoDB.DocumentClient()
 
-const tableName = process.env.USER_DYNAMO || 'cgl_user_reset_pass_test'
-
 export default class UserResetPasswordDynamodbRepository {
+
+  private tableName: string = process.env.USER_TABLE || ''
 
   async create(data: UserResetPassEntity): Promise<any> {
     const params = {
-      TableName: tableName,
+      TableName: this.tableName,
       Item: data
     };
 
@@ -23,7 +23,7 @@ export default class UserResetPasswordDynamodbRepository {
 
   async findById(id: string): Promise<any> {
     const params = {
-      TableName: tableName,
+      TableName: this.tableName,
       Key: {
         id: id,
       },
@@ -35,7 +35,7 @@ export default class UserResetPasswordDynamodbRepository {
 
   async findByToken(token: string): Promise<any> {
     const params = {
-      TableName: tableName,
+      TableName: this.tableName,
       FilterExpression: '#tk = :tk',
       ExpressionAttributeValues: {
         ':tk': token
@@ -53,7 +53,7 @@ export default class UserResetPasswordDynamodbRepository {
   async update(data: UserResetPassEntity): Promise<any> {
     const { id, token, expire } = data
     const params = {
-      TableName: tableName,
+      TableName: this.tableName,
       Key: { id: id },
       UpdateExpression: 'set #tk = :newRefCode, #exp = :newExp',
       ExpressionAttributeValues: {
@@ -71,7 +71,7 @@ export default class UserResetPasswordDynamodbRepository {
 
   async delete(id: Number): Promise<any> {
     const params = {
-      TableName: tableName,
+      TableName: this.tableName,
       Key: {
         id: id,
       }

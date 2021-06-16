@@ -7,7 +7,7 @@ import {
 } from './reset-password.schema';
 import UserProfileRepository from '../repositories/user-profile.repository';
 import UserDynamoRepository from '../repositories/user.dynamodb.repository'
-import UtillityService from '../services/util.service';
+import Utility from 'utility-layer/src/helper/security'
 import BuildResponse from 'utility-layer/dist/build-response'
 import UserService from '../services/user.service';
 import UserResetPasswordDynamoRepository from '../repositories/user-reset-password.dynamodb.repository'
@@ -16,7 +16,7 @@ const userProfileRepository = new UserProfileRepository();
 const userDynamoRepository = new UserDynamoRepository();
 const userResetPassDynamoRepository = new UserResetPasswordDynamoRepository();
 const buildResponse = new BuildResponse();
-const util = new UtillityService();
+const util = new Utility();
 
 @Controller({ route: '/api/v1/password' })
 export default class ResetPasswordController {

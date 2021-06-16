@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { Controller, GET, getInstanceByToken, POST } from 'fastify-decorators';
 import AuthenticationService from '../services/authentication.service';
 import { loginSchema, otpRequestSchema, otpVerifySchema, refreshTokenSchema } from './authentication.schema';
-import Utillity from '../services/util.service'
+import Utility from 'utility-layer/src/helper/security'
 import SmsService from '../services/sms.service'
 import OtpRepository from "../repositories/otp.dynamodb.repository";
 import UserDynamodbRepository from "../repositories/user.dynamodb.repository";
@@ -13,7 +13,7 @@ import UserService from '../services/user.service';
 
 const otpRepository = new OtpRepository();
 const userDynamoRepository = new UserDynamodbRepository();
-const utillity = new Utillity();
+const utility = new Utility();
 const smsService = new SmsService();
 
 interface OtpRequestParams {
@@ -57,10 +57,10 @@ export default class AuthenticationController {
         await this.userService.createNormalUser(params);
       }
 
-      const otpCode = utillity.generateOtpCode(4);
-      const refCode = utillity.generateRefCode(6);
+      const otpCode = utility.generateOtpCode(4);
+      const refCode = utility.generateRefCode(6);
       const variant = refCode + username + otpCode;
-      const variantSecurity = utillity.generateOtpSecretCode(variant)
+      const variantSecurity = utility.generateOtpSecretCode(variant)
 
       const smsMessage = `${refCode} - The verifcation code is ${otpCode}`;
       const result = await smsService.sendSms(username, smsMessage);
@@ -102,7 +102,7 @@ export default class AuthenticationController {
         if (userInformation) {
           const userProfile = await this.authenService.getUserProfile({ phoneNumber: username });
           const termOfService = this.termOfServiceUserService.getTermOfServiceByUser(userProfile.id);
-          const password: any = await utillity.decryptByKms(userInformation.password)
+          const password: any = await utility.decryptByKms(userInformation.password)
           console.log('password :>> ', password);
           const token = await this.authenService.signin(username, password);
           return {
@@ -139,7 +139,7 @@ export default class AuthenticationController {
       if (userInformation) {
         const userProfile = await this.authenService.getUserProfile({ email });
         const termOfService = this.termOfServiceUserService.getTermOfServiceByUser(userProfile.id)
-        // const password: any = await utillity.decryptByKms(userInformation.password)
+        // const password: any = await utility.decryptByKms(userInformation.password)
         const token = await this.authenService.signin(email, password);
         return {
           message: '',
@@ -193,3 +193,14 @@ export default class AuthenticationController {
 //   --username "atillart1003@gmail.com" \
 //   --password "111111111" \
 //   --permanent
+
+
+/*
+OTP_TABLE: 'cgl_otp'
+USER_TABLE: 'cgl_user'
+USER_POOL_ID: 'ap-southeast-1_hIWBSYz7z'
+CLIENT_ID: '4qkd14u6na0fo1tfhtrdari41i'
+MASTER_KEY_ID: 'd0c2e90d-21f9-46bd-aa24-33e17f5d1b32'
+PINPOINT_PROJECT_ID: '6218ffc1d1a9404b91858993b3cafed6'
+MESSAGING_URL: 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod/api/v1/messaging'
+*/

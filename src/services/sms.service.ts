@@ -3,10 +3,11 @@ import * as AWS from 'aws-sdk'
 
 const pinpoint = new AWS.Pinpoint()
 
-const projectId = process.env.SMS_ID || '89c3aae913d046d98681b7d4cd80962a'
-
 @Service()
 export default class SmsService {
+
+  private projectId: string = process.env.PINPOINT_PROJECT_ID || ''
+
   // @Initializer()
   // async init(): Promise<void> {
   // }
@@ -14,7 +15,7 @@ export default class SmsService {
   // [MOVE] to SMS Service
   async sendSms(phoneNumber: string, message: string): Promise<any> {
     var params = {
-      ApplicationId: projectId,
+      ApplicationId: this.projectId,
       MessageRequest: {
         Addresses: {
           [phoneNumber]: {

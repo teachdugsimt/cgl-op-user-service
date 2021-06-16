@@ -1,7 +1,7 @@
 import { AfterLoad, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import Util from '../services/util.service'
+import Utility from 'utility-layer/src/helper/security'
 
-const util = new Util();
+const util = new Utility();
 
 @Entity("user_profile", { schema: "public" })
 export class UserProfile {
