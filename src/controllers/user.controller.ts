@@ -9,7 +9,9 @@ import {
   updateUserByUserIdSchema,
   addUserSchema,
   deleteUserByUserIdSchema,
-  generateUploadLinkResponse
+  generateUploadLinkResponse,
+  deleteUploadLinkResponse,
+  updateUserProfileResponse
 } from './user.schema';
 import ValidateParam from '../services/validate-param.service'
 import TermOfServiceUserService from '../services/term-of-service-user.service'
@@ -19,6 +21,8 @@ import { FindManyOptions, FindOperator, Like } from 'typeorm';
 import Utility from 'utility-layer/src/helper/security'
 import BuildResponse from 'utility-layer/dist/build-response'
 import UserService from '../services/user.service';
+import UpdateUserProfileService from '../services/update-user-profile.service'
+import UserDynamodbRepository, { UploadLink } from '../repositories/user.dynamodb.repository';
 
 
 interface UserFilterCondition {
@@ -37,6 +41,7 @@ export default class UserController {
 
   private userService = getInstanceByToken<UserService>(UserService);
   private termOfServiceUserService = getInstanceByToken<TermOfServiceUserService>(TermOfServiceUserService);
+  private updateUserProfileServ = getInstanceByToken<UpdateUserProfileService>(UpdateUserProfileService);
 
   // @ValidateParam(termOfServiceSchema)
   @POST({
@@ -229,26 +234,106 @@ export default class UserController {
   }
 
   @POST({
-    url: ':id/gen-doc-upload-link',
+    url: '/:id/gen-doc-upload-link',
     options: {
       schema: generateUploadLinkResponse
     }
   })
   async GenerateLinkUpload(req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply): Promise<any> {
     try {
-      if (req.id) {
-        const addDays = (date: Date, days: number) => {
-          var result = new Date(date);
-          result.setDate(result.getDate() + days);
-          return result;
-        }
-        let now = new Date()
-        const data = { userId: req.id, expire: addDays(now, 2) }
+      if (req.params.id) {
+        const data = { userId: req.params.id }
         console.log("Data to jwt :: ", data)
         const base_url = "https://cargolink.com/user/upload?token="
-        const link = base_url + util.generateJwtToken(data)
-        console.log("Link  full :: ", link)
-        return { url: link }
+        const token = util.generateJwtToken(data)
+        const link = base_url + token
+
+        const repo = new UserDynamodbRepository()
+        const everHaveToken: UploadLink = await repo.findAttachCodeWithUser(req.params.id)
+
+        let result: any
+        if (everHaveToken && typeof everHaveToken && Object.keys(everHaveToken).length > 0) {
+          await repo.deleteUploadLink(req.params.id)
+          const uploadLinkObject = {
+            token,
+            user_id: req.params.id
+          }
+          result = await repo.createUploadLinkData(uploadLinkObject)
+        } else {
+          const uploadLinkObject = {
+            token,
+            user_id: req.params.id
+          }
+          result = await repo.createUploadLinkData(uploadLinkObject)
+        }
+
+        if (result && typeof result == "object")
+          return { url: link, userId: req.params.id }
+        else return { url: null, userId: req.params.id }
+      }
+    } catch (err) {
+      throw new Error(err)
+    }
+  }
+
+  @POST({
+    url: '/:id/clear-upload-link',
+    options: {
+      schema: deleteUploadLinkResponse
+    }
+  })
+  async ClearUploadLink(req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply): Promise<any> {
+    try {
+      if (req.params.id) {
+        const repo = new UserDynamodbRepository()
+        const result = await repo.deleteUploadLink(req.params.id)
+
+        if (result && typeof result == "object")
+          return { data: true }
+        else return { data: false }
+      }
+    } catch (err) {
+      throw new Error(err)
+    }
+  }
+
+  @POST({  // call media/confirm & /:id/clear-upload-link
+    url: '/:id/update-user-profile',
+    options: {
+      schema: updateUserProfileResponse
+    }
+  })
+  async updateUserProfile(req: FastifyRequest<{ Params: { id: string }, Body: { token: string, url: string[] } }>, reply: FastifyReply): Promise<any> {
+    try {
+      if (req.params.id) {
+
+        //  1. Validate token(latest upload link) in cgl_user_upload_link 
+        const repo = new UserDynamoRepository()
+        const uploadTokenLink = await repo.findAttachCodeWithUser(req.params.id)
+        if (!uploadTokenLink || (typeof uploadTokenLink == "object" && Object.keys(uploadTokenLink).length == 0))
+          return { message: "Link was expired, please contact manager" }
+
+        if (uploadTokenLink && uploadTokenLink.token != req.body.token) {
+          return { message: "Link was expired, please contact manager" }
+        }
+        console.log("Step 1 : upload link data : ", uploadTokenLink)
+
+        // 2. call media/confirm
+        if (Array.isArray(req.body.url) == false) {
+          return { message: "Invalid url format type" }
+        }
+        const confirmResult = await this.updateUserProfileServ.confirmMedia(req.body.url)
+        console.log("Step 2 : confirm media : ", confirmResult)
+
+        // 3. call id/clear-upload-link
+        if (confirmResult && confirmResult?.message == "confirm success") {
+          const controllerM = new UserController()
+          const clearUploadLinkResult = await controllerM.ClearUploadLink(req, reply)
+          console.log("Step 3 : clear upload link : ", clearUploadLinkResult)
+          return { message: "Update success" }
+        } else {
+          return { message: "Invalid url entry" }
+        }
       }
     } catch (err) {
       throw new Error(err)

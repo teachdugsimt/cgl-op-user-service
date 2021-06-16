@@ -218,7 +218,49 @@ export const generateUploadLinkResponse: FastifySchema = {
   response: {
     200: {
       type: 'object',
-      properties: { url: { type: 'string' } },
+      properties: {
+        url: { type: 'string', nullable: true },
+        userId: { type: 'string', nullable: true },
+      },
+      additionalProperties: false
+    }
+  }
+}
+
+export const deleteUploadLinkResponse: FastifySchema = {
+  // body: {},
+  params: {
+    id: { type: 'string' }
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        data: { type: 'boolean' }
+      },
+      additionalProperties: false
+    }
+  }
+}
+
+export const updateUserProfileResponse: FastifySchema = {
+  // body: {},
+  params: {
+    id: { type: 'string' }
+  },
+  body: {
+    type: 'object',
+    properties: {
+      token: { type: 'string' },
+      url: { type: 'array', items: { type: 'string' } }
+    }
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        message: { type: 'string' }
+      },
       additionalProperties: false
     }
   }
