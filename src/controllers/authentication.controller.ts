@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { Controller, GET, getInstanceByToken, POST } from 'fastify-decorators';
 import AuthenticationService from '../services/authentication.service';
 import { loginSchema, otpRequestSchema, otpVerifySchema, refreshTokenSchema } from './authentication.schema';
-import Utility from 'utility-layer/src/helper/security'
+import Utility from 'utility-layer/dist/security'
 import SmsService from '../services/sms.service'
 import OtpRepository from "../repositories/otp.dynamodb.repository";
 import UserDynamodbRepository from "../repositories/user.dynamodb.repository";
@@ -200,7 +200,7 @@ OTP_TABLE: 'cgl_otp'
 USER_TABLE: 'cgl_user'
 USER_POOL_ID: 'ap-southeast-1_hIWBSYz7z'
 CLIENT_ID: '4qkd14u6na0fo1tfhtrdari41i'
-MASTER_KEY_ID: 'd0c2e90d-21f9-46bd-aa24-33e17f5d1b32'
+MASTER_KEY_ID: 'arn:aws:kms:ap-southeast-1:029707422715:key/d0c2e90d-21f9-46bd-aa24-33e17f5d1b32'
 PINPOINT_PROJECT_ID: '6218ffc1d1a9404b91858993b3cafed6'
 MESSAGING_URL: 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod/api/v1/messaging'
 */

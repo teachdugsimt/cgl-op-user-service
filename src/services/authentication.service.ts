@@ -4,7 +4,7 @@ import * as AmazonCognitoIdentity from 'amazon-cognito-identity-js'
 import cryptoRandomString from 'crypto-random-string';
 import UserDynamodbRepository from "../repositories/user.dynamodb.repository";
 import UserRepository from '../repositories/user-profile.repository'
-import Utility from 'utility-layer/src/helper/security'
+import Utility from 'utility-layer/dist/security'
 
 interface FilterUserProfile {
   phoneNumber?: string

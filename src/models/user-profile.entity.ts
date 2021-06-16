@@ -1,5 +1,5 @@
 import { AfterLoad, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import Utility from 'utility-layer/src/helper/security'
+import Utility from 'utility-layer/dist/security'
 
 const util = new Utility();
 

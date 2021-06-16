@@ -7,7 +7,7 @@ import {
 } from './reset-password.schema';
 import UserProfileRepository from '../repositories/user-profile.repository';
 import UserDynamoRepository from '../repositories/user.dynamodb.repository'
-import Utility from 'utility-layer/src/helper/security'
+import Utility from 'utility-layer/dist/security'
 import BuildResponse from 'utility-layer/dist/build-response'
 import UserService from '../services/user.service';
 import UserResetPasswordDynamoRepository from '../repositories/user-reset-password.dynamodb.repository'

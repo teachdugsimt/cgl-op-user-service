@@ -3,7 +3,7 @@ import * as AWS from 'aws-sdk'
 import UserDynamodbRepository from "../repositories/user.dynamodb.repository";
 import UserProfileRepository from '../repositories/user-profile.repository'
 import UserRoleService from './user-role.service'
-import Utility from 'utility-layer/src/helper/security'
+import Utility from 'utility-layer/dist/security'
 import axios from 'axios';
 
 interface AddNormalUser {

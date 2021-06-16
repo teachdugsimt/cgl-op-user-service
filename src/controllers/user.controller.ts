@@ -18,7 +18,7 @@ import TermOfServiceUserService from '../services/term-of-service-user.service'
 import UserProfileRepository from '../repositories/user-profile.repository';
 import UserDynamoRepository from '../repositories/user.dynamodb.repository'
 import { FindManyOptions, FindOperator, Like } from 'typeorm';
-import Utility from 'utility-layer/src/helper/security'
+import Utility from 'utility-layer/dist/security'
 import BuildResponse from 'utility-layer/dist/build-response'
 import UserService from '../services/user.service';
 import UpdateUserProfileService from '../services/update-user-profile.service'
