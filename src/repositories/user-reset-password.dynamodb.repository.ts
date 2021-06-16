@@ -69,7 +69,7 @@ export default class UserResetPasswordDynamodbRepository {
     return await documentClient.update(params).promise();
   }
 
-  async delete(id: Number): Promise<any> {
+  async delete(id: number): Promise<any> {
     const params = {
       TableName: this.tableName,
       Key: {
