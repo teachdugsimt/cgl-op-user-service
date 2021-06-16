@@ -10,7 +10,7 @@ const documentClient = new AWS.DynamoDB.DocumentClient()
 
 export default class UserResetPasswordDynamodbRepository {
 
-  private tableName: string = process.env.USER_TABLE || ''
+  private tableName: string = process.env.USER_RESET_PASS_TABLE || ''
 
   async create(data: UserResetPassEntity): Promise<any> {
     const params = {
@@ -21,7 +21,7 @@ export default class UserResetPasswordDynamodbRepository {
     return documentClient.put(params).promise();
   }
 
-  async findById(id: string): Promise<any> {
+  async findById(id: number): Promise<any> {
     const params = {
       TableName: this.tableName,
       Key: {

@@ -101,7 +101,7 @@ export default class AuthenticationController {
         console.log('userInformation :>> ', userInformation);
         if (userInformation) {
           const userProfile = await this.authenService.getUserProfile({ phoneNumber: username });
-          const termOfService = this.termOfServiceUserService.getTermOfServiceByUser(userProfile.id);
+          const termOfService = this.termOfServiceUserService.getTermOfServiceByUser(+userProfile.id);
           const password: any = await utility.decryptByKms(userInformation.password)
           console.log('password :>> ', password);
           const token = await this.authenService.signin(username, password);
@@ -138,7 +138,7 @@ export default class AuthenticationController {
       console.log('userInformation :>> ', userInformation);
       if (userInformation) {
         const userProfile = await this.authenService.getUserProfile({ email });
-        const termOfService = this.termOfServiceUserService.getTermOfServiceByUser(userProfile.id)
+        const termOfService = this.termOfServiceUserService.getTermOfServiceByUser(+userProfile.id)
         // const password: any = await utility.decryptByKms(userInformation.password)
         const token = await this.authenService.signin(email, password);
         return {

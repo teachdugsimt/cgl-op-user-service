@@ -66,7 +66,7 @@ export default class ResetPasswordController {
       const userDynamo = await userDynamoRepository.findByUsername(email);
       if (userDynamo) {
         const userProfile = await userProfileRepository.findOneByAttribute({ email: email }, { select: ['id'] });
-        const userId = userProfile.id;
+        const userId: number = +userProfile.id;
         const userResetPassInfo = await userResetPassDynamoRepository.findById(userId);
         const token = util.generateRefCode(32);
         if (userResetPassInfo) {
