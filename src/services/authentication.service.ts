@@ -5,6 +5,7 @@ import cryptoRandomString from 'crypto-random-string';
 import UserDynamodbRepository from "../repositories/user.dynamodb.repository";
 import UserRepository from '../repositories/user-profile.repository'
 import Utility from 'utility-layer/dist/security'
+import axios from 'axios';
 
 interface FilterUserProfile {
   phoneNumber?: string
@@ -166,6 +167,12 @@ export default class AuthenticationService {
       email: userProfile.email,
       avatar: null
     }
+  }
+
+  async sendSMS(phoneNumber: string, message: string): Promise<any> {
+    const mainUrl = process.env.MESSAGING_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod/api/v1/messaging';
+    const { data } = await axios.post(`${mainUrl}/sms/send`, { phoneNumber, message });
+    return data
   }
 
   @Destructor()
