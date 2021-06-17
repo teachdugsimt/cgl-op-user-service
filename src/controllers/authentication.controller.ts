@@ -3,7 +3,6 @@ import { Controller, GET, getInstanceByToken, POST } from 'fastify-decorators';
 import AuthenticationService from '../services/authentication.service';
 import { loginSchema, otpRequestSchema, otpVerifySchema, refreshTokenSchema } from './authentication.schema';
 import Utility from 'utility-layer/dist/security'
-import SmsService from '../services/sms.service'
 import OtpRepository from "../repositories/otp.dynamodb.repository";
 import UserDynamodbRepository from "../repositories/user.dynamodb.repository";
 import ValidateParam from '../services/validate-param.service'
@@ -14,7 +13,6 @@ import UserService from '../services/user.service';
 const otpRepository = new OtpRepository();
 const userDynamoRepository = new UserDynamodbRepository();
 const utility = new Utility();
-const smsService = new SmsService();
 
 interface OtpRequestParams {
   countryCode: string,
