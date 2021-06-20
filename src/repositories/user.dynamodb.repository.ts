@@ -10,7 +10,7 @@ const documentClient = new AWS.DynamoDB.DocumentClient()
 
 export default class UserDynamodbRepository {
 
-  private tableName: string = process.env.USER_TABLE || 'user_table'
+  private tableName: string = process.env.USER_TABLE || 'cgl_user'
 
   async create(data: UserCreate): Promise<any> {
     const params = {

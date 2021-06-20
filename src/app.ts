@@ -13,6 +13,20 @@ function build(opts: object = configApp) {
   app.register(fastifyBlipp)
   app.register(require('fastify-swagger'), configSwagger)
 
+  app.register(require('fastify-cors'), { 
+    origin: (origin, cb) => {
+      // if(/localhost/.test(origin)){
+      //   //  Request from localhost will pass
+      //   cb(null, true)
+      //   return
+      // }
+      // Generate an error on other origins, disabling access
+      // cb(new Error("Not allowed"))
+      cb(null, true)
+      return
+    }
+  })
+
   app.register(connectionDb)
 
   app.register(bootstrap, {
