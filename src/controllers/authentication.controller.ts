@@ -38,13 +38,10 @@ export default class AuthenticationController {
   async OtpRequest(req: FastifyRequest<{ Body: { countryCode: string, phoneNumber: string } }>, reply: FastifyReply): Promise<object> {
     try {
       const { phoneNumber, countryCode } = req.body
-      // if (body && body?.countryCode && body?.phoneNumber) {
       const username = countryCode.trim() + phoneNumber.trim();
-      const userInformation = await userDynamoRepository.findByUsername(username);
+      const userInformation = await userDynamoRepository.findByUsernameWithPhoneNumber(username);
       console.log('userInformation :>> ', userInformation);
-      // const userInfoByMobileNo = await userDynamoRepository.findByMobeilNo(username);
 
-      // if (!userInformation || !userInfoByMobileNo) {
       if (!userInformation) {
         // Create user
         const params = {
@@ -61,10 +58,8 @@ export default class AuthenticationController {
       const variantSecurity = utility.generateOtpSecretCode(variant)
 
       const smsMessage = `${refCode} - The verifcation code is ${otpCode}`;
-      // const result = await smsService.sendSms(username, smsMessage);
-      const result = await this.authenService.sendSMS(username, smsMessage);
-      console.log('result :>> ', JSON.stringify(result));
 
+      await this.authenService.sendSMS(username, smsMessage);
       await otpRepository.create(variantSecurity, 90);
 
       return {
@@ -96,14 +91,16 @@ export default class AuthenticationController {
       console.log('verifyOtp :>> ', verifyOtp);
       if (verifyOtp && verifyOtp.expire > Math.floor(Date.now() / 1000)) {
         const username = countryCode.trim() + phoneNumber.trim();
-        const userInformation = await userDynamoRepository.findByUsername(username);
+        const userInformation = await userDynamoRepository.findByUsernameWithPhoneNumber(username);
         console.log('userInformation :>> ', userInformation);
         if (userInformation) {
           const userProfile = await this.authenService.getUserProfile({ phoneNumber: username });
           const termOfService = this.termOfServiceUserService.getTermOfServiceByUser(+userProfile.id);
           const password: any = await utility.decryptByKms(userInformation.password)
           console.log('password :>> ', password);
-          const token = await this.authenService.signin(username, password);
+          const myUsername = userInformation?.phoneNumber ? userInformation.username : username;
+          console.log('myUsername :>> ', myUsername);
+          const token = await this.authenService.signin(myUsername, password);
           return {
             message: '',
             responseCode: 1,

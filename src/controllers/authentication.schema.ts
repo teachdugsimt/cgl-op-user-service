@@ -6,7 +6,7 @@ export const otpRequestSchema: FastifySchema = {
     properties: {
       countryCode: { type: 'string' },
       phoneNumber: { type: 'string' },
-      userType: { type: 'number' }
+      // userType: { type: 'number' }
     }
   },
   response: {

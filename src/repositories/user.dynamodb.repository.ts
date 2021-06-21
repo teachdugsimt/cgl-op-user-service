@@ -1,4 +1,5 @@
 import * as AWS from 'aws-sdk';
+import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 
 interface UserCreate {
   username: string
@@ -48,6 +49,24 @@ export default class UserDynamodbRepository {
 
     const { Item } = await documentClient.get(params).promise();
     return Item && Object.keys(Item)?.length ? Item : null
+  }
+
+  async findByUsernameWithPhoneNumber(username: string): Promise<any> {
+    const params: DocumentClient.ScanInput = {
+      TableName: this.tableName,
+      FilterExpression: '#usr = :usr or #p = :p',
+      ExpressionAttributeValues: {
+        ':usr': username,
+        ':p': username
+      },
+      ExpressionAttributeNames: {
+        '#usr': "username",
+        '#p': 'phoneNumber'
+      },
+    };
+
+    const { Items } = await documentClient.scan(params).promise();
+    return Items?.length ? Items[0] : null
   }
 
   async findByMobeilNo(phoneNumber: string): Promise<any> {
