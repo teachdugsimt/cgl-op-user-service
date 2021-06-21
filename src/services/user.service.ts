@@ -114,6 +114,13 @@ export default class UserService {
     });
   }
 
+  async signOut(token: string): Promise<any> {
+    const params = {
+      AccessToken: token
+    };
+    return cognitoidentityserviceprovider.globalSignOut(params).promise();
+  }
+
   @Destructor()
   async destroy(): Promise<void> {
   }

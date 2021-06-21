@@ -265,3 +265,21 @@ export const updateUserProfileResponse: FastifySchema = {
     }
   }
 }
+
+export const logoutSchema: FastifySchema = {
+  body: {
+    type: 'object',
+    properties: {
+      token: { type: 'string' },
+    }
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        message: { type: 'string' },
+      },
+      additionalProperties: false
+    }
+  }
+}

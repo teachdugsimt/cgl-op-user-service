@@ -11,7 +11,8 @@ import {
   deleteUserByUserIdSchema,
   generateUploadLinkResponse,
   deleteUploadLinkResponse,
-  updateUserProfileResponse
+  updateUserProfileResponse,
+  logoutSchema
 } from './user.schema';
 import ValidateParam from '../services/validate-param.service'
 import TermOfServiceUserService from '../services/term-of-service-user.service'
@@ -336,6 +337,21 @@ export default class UserController {
         }
       }
     } catch (err) {
+      throw new Error(err)
+    }
+  }
+
+  @POST({
+    url: '/logout',
+    options: {
+      schema: logoutSchema
+    }
+  })
+  async Logout(req: FastifyRequest<{ Body: { token: string } }>, reply: FastifyReply): Promise<any> {
+    try {
+      return await this.userService.signOut(req.body.token);
+    } catch (err) {
+      console.log('err :>> ', err);
       throw new Error(err)
     }
   }

@@ -1,5 +1,5 @@
 'use strict'
-
+require('dotenv').config();
 import build from './app'
 
 const server = build()
