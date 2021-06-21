@@ -8,7 +8,9 @@ export default class UpdateUserProfileService {
 
   async confirmMedia(url: string[]): Promise<any> {
     try {
-      const result = await axios.post(`https://${process.env.API_GW_ID || '2kgrbiwfnc'}${process.env.API_URL || '.execute-api.ap-southeast-1.amazonaws.com'}/prod/api/v1/media/confirm`, {
+      const apiUrl = process.env.API_URL ? process.env.API_URL + `/api/v1/media/confirm`
+        : `https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod/api/v1/media/confirm`
+      const result = await axios.post(apiUrl, {
         url
       })
       return result?.data
