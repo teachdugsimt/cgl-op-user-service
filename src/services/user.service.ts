@@ -138,9 +138,9 @@ export default class UserService {
   }
 
   async sendEmailForResetPassword(email: string, token: string): Promise<any> {
-    const mainUrl = process.env.MESSAGING_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod/api/v1/messaging';
+    const mainUrl = process.env.API_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod';
     const link = `https://infiltech.org/?token=${token}`;
-    await axios.post(`${mainUrl}/email/send`, {
+    await axios.post(`${mainUrl}/api/v1/messaging/email/send`, {
       email: email,
       subject: 'Reset your password for CargoLink',
       bodyText: `<p>Hello,</p>
@@ -229,8 +229,8 @@ export default class UserService {
     const updated = userProfileRepository.update(id, data);
 
     if (attachCode?.length) {
-      const fileManagementUrl = process.env.FILE_MANAGEMENT_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod/api/v1/media';
-      await axios.post(`${fileManagementUrl}/confirm`, { url: attachCode });
+      const fileManagementUrl = process.env.API_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod';
+      await axios.post(`${fileManagementUrl}/api/v1/media/confirm`, { url: attachCode });
     }
 
     return updated;
@@ -239,12 +239,12 @@ export default class UserService {
   async getProfileByUserId(userId: string): Promise<any> {
     const id = utility.decodeUserId(userId);
 
-    const fileManagementUrl = process.env.FILE_MANAGEMENT_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod/api/v1/media';
-    const response = axios.get(`${fileManagementUrl}/file`, { params: { userId: id, fileType: UserTypes.DOC, status: UserStatus.ACTIVE } });
+    const fileManagementUrl = process.env.API_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod';
+    const response = await axios.get(`${fileManagementUrl}/api/v1/media/file`, { params: { userId: id, fileType: UserTypes.DOC, status: UserStatus.ACTIVE } });
 
     const user = await userProfileRepository.findOne(id);
 
-    const fileNames = (await response).data.data.map((user: any) => user.file_name);
+    const fileNames = response.data.data.map((user: any) => user.file_name);
 
     return { ...user, files: fileNames }
   }
