@@ -240,7 +240,7 @@ export default class UserService {
     const id = utility.decodeUserId(userId);
 
     const fileManagementUrl = process.env.FILE_MANAGEMENT_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod/api/v1/media';
-    const response = axios.post(`${fileManagementUrl}/file`, { userId: id, fileType: UserTypes.DOC, status: UserStatus.ACTIVE });
+    const response = axios.get(`${fileManagementUrl}/file`, { params: { userId: id, fileType: UserTypes.DOC, status: UserStatus.ACTIVE } });
 
     const user = await userProfileRepository.findOne(id);
 
