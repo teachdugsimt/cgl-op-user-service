@@ -24,7 +24,7 @@ export const getUserSchema: FastifySchema = {
   querystring: {
     descending: { type: 'boolean' },
     page: { type: 'number' },
-    limit: { type: 'number' },
+    rowsPerPage: { type: 'number' },
     name: { type: 'string' },
     phoneNumber: { type: 'string' },
     email: { type: 'string' },
@@ -33,9 +33,12 @@ export const getUserSchema: FastifySchema = {
     200: {
       type: 'object',
       properties: {
-        message: { type: 'string' },
-        responseCode: { type: 'number' },
-        data: { type: 'array' }
+        data: { type: 'array' },
+        size: { type: 'number' },
+        currentPage: { type: 'number' },
+        totalPages: { type: 'number' },
+        totalElements: { type: 'number' },
+        numberOfElements: { type: 'number' },
       },
       additionalProperties: false
     }
@@ -64,6 +67,7 @@ export const getUserOwnerSchema: FastifySchema = {
         createdBy: { type: 'string' },
         updatedBy: { type: 'string' },
         userId: { type: 'string' },
+        files: { type: 'array', items: { type: 'string' } }
       },
       additionalProperties: false
     }
@@ -122,6 +126,7 @@ export const getUserByUserIdSchema: FastifySchema = {
         createdBy: { type: 'string' },
         updatedBy: { type: 'string' },
         userId: { type: 'string' },
+        files: { type: 'array', items: { type: 'string' } }
       },
       additionalProperties: false
     }
@@ -145,6 +150,12 @@ export const updateUserByUserIdSchema: FastifySchema = {
       name: { type: 'string' },
       phoneNumber: { type: 'string' },
       email: { type: 'string' },
+      attachCode: {
+        type: 'array',
+        items: {
+          type: 'string'
+        }
+      }
     }
   },
   response: {
@@ -279,6 +290,52 @@ export const logoutSchema: FastifySchema = {
       properties: {
         message: { type: 'string' },
       },
+      additionalProperties: false
+    }
+  }
+}
+
+export const userStatusSchema: FastifySchema = {
+  params: {
+    userId: { type: 'string' }
+  },
+  body: {
+    type: 'object',
+    properties: {
+      status: {
+        type: 'string',
+        enum: ['ACTIVE', 'INACTIVE'],
+        description: 'status allow with [ACTIVE, INACTIVE] only'
+      }
+    },
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {},
+      additionalProperties: false
+    }
+  }
+}
+
+export const documentStatusSchema: FastifySchema = {
+  params: {
+    userId: { type: 'string' }
+  },
+  body: {
+    type: 'object',
+    properties: {
+      status: {
+        type: 'string',
+        enum: ['NO_DOCUMENT', 'WAIT_FOR_VERIFIED', 'VERIFIED'],
+        description: 'status allow with [NO_DOCUMENT, WAIT_FOR_VERIFIED, VERIFIED] only'
+      }
+    },
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {},
       additionalProperties: false
     }
   }

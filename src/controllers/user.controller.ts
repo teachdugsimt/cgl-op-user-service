@@ -12,25 +12,18 @@ import {
   generateUploadLinkResponse,
   deleteUploadLinkResponse,
   updateUserProfileResponse,
-  logoutSchema
+  logoutSchema,
+  userStatusSchema,
+  documentStatusSchema
 } from './user.schema';
-import ValidateParam from '../services/validate-param.service'
 import TermOfServiceUserService from '../services/term-of-service-user.service'
 import UserProfileRepository from '../repositories/user-profile.repository';
 import UserDynamoRepository from '../repositories/user.dynamodb.repository'
-import { FindManyOptions, FindOperator, Like } from 'typeorm';
 import Utility from 'utility-layer/dist/security'
 import BuildResponse from 'utility-layer/dist/build-response'
 import UserService from '../services/user.service';
 import UpdateUserProfileService from '../services/update-user-profile.service'
 import UserDynamodbRepository, { UploadLink } from '../repositories/user.dynamodb.repository';
-
-
-interface UserFilterCondition {
-  fullname?: FindOperator<string>
-  email?: FindOperator<string>
-  phoneNumber?: FindOperator<string>
-}
 
 const userProfileRepository = new UserProfileRepository();
 const userDynamoRepository = new UserDynamoRepository();
@@ -99,28 +92,17 @@ export default class UserController {
       schema: getUserSchema,
     }
   })
-  async GetUsers(req: FastifyRequest<{ Querystring: { descending?: boolean, limit?: number, page?: number, name?: string, phoneNumber?: string, email?: string } }>, reply: FastifyReply): Promise<object> {
+  async GetUsers(req: FastifyRequest<{ Querystring: { descending?: boolean, rowsPerPage?: number, page?: number, name?: string, phoneNumber?: string, email?: string } }>, reply: FastifyReply): Promise<object> {
     try {
-      const { descending, page = 0, limit = 20, name, phoneNumber, email } = req.query
-      let cond: UserFilterCondition = {}
-
-      if (name) cond.fullname = Like(`%${name}%`)
-      if (email) cond.email = Like(`%${email}%`)
-      if (phoneNumber) cond.phoneNumber = Like(`%${phoneNumber}%`)
-
-      const filter: FindManyOptions = {
-        where: cond,
-        take: limit,
-        skip: page,
-        order: {
-          id: descending ? 'DESC' : 'ASC'
-        }
-      }
-      const users = await userProfileRepository.find(filter)
+      const { rowsPerPage = 10, page = 1 } = req.query
+      const users = await this.userService.getAllUser(req.query);
       return {
-        message: '',
-        responseCode: 1,
-        data: users
+        data: users.data,
+        size: rowsPerPage,
+        currentPage: page,
+        totalPages: Math.ceil(users.count / (+rowsPerPage)),
+        totalElements: users.count,
+        numberOfElements: users.data.length ?? 0,
       }
     } catch (err) {
       throw new Error(err)
@@ -137,9 +119,7 @@ export default class UserController {
   async GetUsersOwner(req: FastifyRequest<{ Querystring: { userId: string } }>, reply: FastifyReply): Promise<object> {
     try {
       const { userId } = req.query
-      const id = util.decodeUserId(userId);
-      const user = await userProfileRepository.findOne(id);
-      return user
+      return await this.userService.getProfileByUserId(userId);
     } catch (err) {
       throw new Error(err)
     }
@@ -164,9 +144,7 @@ export default class UserController {
         updatedAt: new Date(),
         updatedBy: util.getUserIdByToken(token),
       }
-      const user = await userProfileRepository.update(id, data);
-      // console.log('user :>> ', user);
-      return user
+      return await userProfileRepository.update(id, data);
     } catch (err) {
       throw new Error(err)
     }
@@ -182,10 +160,7 @@ export default class UserController {
   async GetUserByUserId(req: FastifyRequest<{ Params: { userId: string } }>, reply: FastifyReply): Promise<object> {
     try {
       const { userId } = req.params
-      const id = util.decodeUserId(userId);
-      const user = await userProfileRepository.findOne(id);
-      // console.log('user :>> ', user);
-      return user
+      return await this.userService.getProfileByUserId(userId);
     } catch (err) {
       throw new Error(err)
     }
@@ -198,19 +173,16 @@ export default class UserController {
       schema: updateUserByUserIdSchema
     }
   })
-  async UpdateUserByUserId(req: FastifyRequest<{ Params: { userId: string }, Body: { name?: string, phoneNumber?: string, email?: string } }>, reply: FastifyReply): Promise<object> {
+  async UpdateUserByUserId(req: FastifyRequest<{
+    Params: { userId: string },
+    Body: { name?: string, phoneNumber?: string, email?: string, attachCode?: string[] }
+  }>, reply: FastifyReply): Promise<object> {
     try {
-      const { name, phoneNumber, email } = req.body
-      const id = util.decodeUserId(req.params.userId);
-      const data = {
-        fullname: name,
-        phoneNumber: phoneNumber,
-        email: email,
-        updatedAt: new Date(),
+      const params = {
+        userId: req.params.userId,
+        ...req.body
       }
-      const user = await userProfileRepository.update(id, data);
-      // console.log('user :>> ', user);
-      return user
+      return await this.userService.updateUserProfile(params);
     } catch (err) {
       throw new Error(err)
     }
@@ -350,6 +322,36 @@ export default class UserController {
   async Logout(req: FastifyRequest<{ Body: { token: string } }>, reply: FastifyReply): Promise<any> {
     try {
       return await this.userService.signOut(req.body.token);
+    } catch (err) {
+      console.log('err :>> ', err);
+      throw new Error(err)
+    }
+  }
+
+  @PATCH({
+    url: '/:userId/status',
+    options: {
+      schema: userStatusSchema
+    }
+  })
+  async UpdateUserStatus(req: FastifyRequest<{ Params: { userId: string }, Body: { status: 'ACTIVE' | 'INACTIVE' } }>, reply: FastifyReply): Promise<any> {
+    try {
+      return await this.userService.updateUserStatus(req.params.userId, req.body.status);
+    } catch (err) {
+      console.log('err :>> ', err);
+      throw new Error(err)
+    }
+  }
+
+  @PATCH({
+    url: '/:userId/doc-status',
+    options: {
+      schema: documentStatusSchema
+    }
+  })
+  async UpdateDocumentStatus(req: FastifyRequest<{ Params: { userId: string }, Body: { status: 'NO_DOCUMENT' | 'WAIT_FOR_VERIFIED' | 'VERIFIED' } }>, reply: FastifyReply): Promise<any> {
+    try {
+      return await this.userService.updateUserDocumentStatus(req.params.userId, req.body.status);
     } catch (err) {
       console.log('err :>> ', err);
       throw new Error(err)

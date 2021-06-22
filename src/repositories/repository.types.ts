@@ -214,4 +214,8 @@ export interface UserProfileCreateEntity {
 
   updatedBy?: string;
 
+  status?: 'ACTIVE' | 'INACTIVE';
+
+  documentStatus?: 'NO_DOCUMENT' | 'WAIT_FOR_VERIFIED' | 'VERIFIED';
+
 }

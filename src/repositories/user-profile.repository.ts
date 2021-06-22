@@ -39,6 +39,12 @@ export default class UserProfileRepository {
     return userProfileRepository.find(filter);
   }
 
+  async findAndCount(filter: FindManyOptions): Promise<any> {
+    const server: any = this.instance
+    const userProfileRepository = server?.db?.userProfile;
+    return userProfileRepository.findAndCount(filter);
+  }
+
   async delete(id: number): Promise<any> {
     const server: any = this.instance;
     const userProfileRepository = server?.db?.userProfile;

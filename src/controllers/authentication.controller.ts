@@ -20,6 +20,10 @@ interface OtpRequestParams {
   userType: number
 }
 
+enum UserStatus {
+  ACTIVE = 'ACTIVE'
+}
+
 @Controller({ route: '/api/v1/auth' })
 export default class AuthenticationController {
 
@@ -50,6 +54,15 @@ export default class AuthenticationController {
           createdBy: 'mobile',
         }
         await this.userService.createNormalUser(params);
+      } else {
+        const userIsActive = await this.userService.checkUserActive(username);
+        if (!userIsActive) {
+          throw {
+            statusCode: 403,
+            code: 'InActiveException',
+            message: 'User is inactivated'
+          }
+        }
       }
 
       const otpCode = utility.generateOtpCode(4);
@@ -69,7 +82,7 @@ export default class AuthenticationController {
 
     } catch (err) {
       console.log('err :>> ', err);
-      return {
+      throw {
         statusCode: err?.statusCode || 400,
         code: err?.code || 'NotFoundException',
         message: err?.message || 'User not found'
@@ -133,7 +146,14 @@ export default class AuthenticationController {
       const userInformation = await userDynamoRepository.findByUsername(email);
       console.log('userInformation :>> ', userInformation);
       if (userInformation) {
-        const userProfile = await this.authenService.getUserProfile({ email });
+        const userProfile = await this.authenService.getUserProfile({ email, status: UserStatus.ACTIVE });
+        if (!userProfile || !userProfile.id) {
+          throw {
+            statusCode: 403,
+            code: 'InActiveException',
+            message: 'User is inactivated'
+          }
+        }
         const termOfService = this.termOfServiceUserService.getTermOfServiceByUser(+userProfile.id)
         // const password: any = await utility.decryptByKms(userInformation.password)
         const token = await this.authenService.signin(email, password);
@@ -147,7 +167,7 @@ export default class AuthenticationController {
       }
       throw {
         statusCode: 400,
-        error: 'NotAuthorizedException',
+        code: 'NotAuthorizedException',
         message: 'Incorrect username or password.',
       }
     } catch (err) {

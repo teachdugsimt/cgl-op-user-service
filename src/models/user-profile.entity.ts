@@ -77,6 +77,20 @@ export class UserProfile {
   })
   updatedBy!: string | null;
 
+  @Column("enum", {
+    name: "status",
+    enum: ["ACTIVE", "INACTIVE"],
+    default: () => "'ACTIVE'",
+  })
+  status!: "ACTIVE" | "INACTIVE";
+
+  @Column("enum", {
+    name: "document_status",
+    enum: ["NO_DOCUMENT", "WAIT_FOR_VERIFIED", "VERIFIED"],
+    default: () => "'NO_DOCUMENT'",
+  })
+  documentStatus!: "NO_DOCUMENT" | "WAIT_FOR_VERIFIED" | "VERIFIED";
+
   userId!: string;
 
   @AfterLoad()

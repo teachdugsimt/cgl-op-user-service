@@ -10,6 +10,7 @@ import axios from 'axios';
 interface FilterUserProfile {
   phoneNumber?: string
   email?: string
+  status?: 'ACTIVE' | 'INACTIVE'
 }
 
 interface NewTokenGenerate {
