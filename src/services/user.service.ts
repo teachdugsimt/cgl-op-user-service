@@ -131,7 +131,7 @@ export default class UserService {
   async resetPassword(username: string, password: string): Promise<any> {
     const encryptPassword: any = await utility.encryptByKms(password, process.env.MASTER_KEY_ID || '');
     await setUserPassword(username, password);
-    return await userDynamoRepository.update({
+    return userDynamoRepository.update({
       username: username,
       password: encryptPassword
     })
@@ -139,7 +139,7 @@ export default class UserService {
 
   async sendEmailForResetPassword(email: string, token: string): Promise<any> {
     const mainUrl = process.env.API_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod';
-    const link = `https://infiltech.org/?token=${token}`;
+    const link = `${process.env.BACK_OFFICE_URL}/auth/reset-password/?token=${token}`;
     await axios.post(`${mainUrl}/api/v1/messaging/email/send`, {
       email: email,
       subject: 'Reset your password for CargoLink',
