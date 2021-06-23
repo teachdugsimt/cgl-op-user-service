@@ -218,4 +218,6 @@ export interface UserProfileCreateEntity {
 
   documentStatus?: 'NO_DOCUMENT' | 'WAIT_FOR_VERIFIED' | 'VERIFIED';
 
+  legalType?: 'INDIVIDUAL' | 'JURISTIC'
+
 }

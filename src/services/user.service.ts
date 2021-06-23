@@ -6,6 +6,7 @@ import UserRoleService from './user-role.service'
 import Utility from 'utility-layer/dist/security'
 import axios from 'axios';
 import { FindManyOptions, FindOperator, ILike } from 'typeorm';
+import { UserProfileCreateEntity } from '../repositories/repository.types';
 
 interface AddNormalUser {
   phoneNumber: string
@@ -42,6 +43,7 @@ interface UpdateUserProfile {
   name?: string
   phoneNumber?: string
   email?: string
+  legalType?: 'INDIVIDUAL' | 'JURISTIC'
   attachCode?: string[]
 }
 
@@ -88,10 +90,25 @@ const setUserPassword = async (username: string, password: string): Promise<any>
   return cognitoidentityserviceprovider.adminSetUserPassword(params).promise();
 };
 
+const updateUsername = async (oldUsername: string, newUsername: string, updateTo: 'email' | 'phone_number'): Promise<any> => {
+  const params = {
+    UserAttributes: [
+      {
+        Name: updateTo,
+        Value: newUsername,
+      },
+    ],
+    UserPoolId: UserPoolId,
+    Username: oldUsername,
+  };
+  return cognitoidentityserviceprovider.adminUpdateUserAttributes(params).promise();
+}
+
 @Service()
 export default class UserService {
 
   private emailFormat = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+  private phoneNumberFormat = /^\+?([0-9]{2})\)??([0-9]{9})$/;
 
   @Initializer()
   async init(): Promise<void> {
@@ -101,7 +118,7 @@ export default class UserService {
   async createNormalUser(data: AddNormalUser): Promise<any> {
     try {
       const username = data.phoneNumber
-      const userExisting = await userDynamoRepository.findByUsername(username);
+      const userExisting = await userDynamoRepository.findByUsernameWithPhoneNumber(username);
       if (userExisting) {
         throw { responseCode: 'USER_EXISTING', message: 'Phone number must be unique' }
       }
@@ -131,10 +148,7 @@ export default class UserService {
   async resetPassword(username: string, password: string): Promise<any> {
     const encryptPassword: any = await utility.encryptByKms(password, process.env.MASTER_KEY_ID || '');
     await setUserPassword(username, password);
-    return userDynamoRepository.update({
-      username: username,
-      password: encryptPassword
-    })
+    return userDynamoRepository.updatePassword(username, encryptPassword);
   }
 
   async sendEmailForResetPassword(email: string, token: string): Promise<any> {
@@ -217,23 +231,58 @@ export default class UserService {
   }
 
   async updateUserProfile(params: UpdateUserProfile): Promise<any> {
-    const { userId, name, phoneNumber, email, attachCode } = params;
+    const { userId, name, email, phoneNumber, attachCode, legalType } = params;
+    let data: UserProfileCreateEntity = {}
+
+    if (phoneNumber) {
+      if (!phoneNumber.match(this.phoneNumberFormat)) {
+        throw new Error('Phone number first character should be +66 or etc.')
+      }
+      data.phoneNumber = phoneNumber
+    }
+
     const id = utility.decodeUserId(userId);
-    const data = {
+
+    data = {
+      ...data,
       ...(name ? { fullname: name } : undefined),
-      ...(phoneNumber ? { phoneNumber: phoneNumber } : undefined),
       ...(email ? { email: email } : undefined),
+      ...(legalType ? { legalType: legalType } : undefined),
       updatedAt: new Date(),
     }
 
+    const userDetailBackup = await userProfileRepository.findOne(id);
     const updated = userProfileRepository.update(id, data);
 
-    if (attachCode?.length) {
-      const fileManagementUrl = process.env.API_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod';
-      await axios.post(`${fileManagementUrl}/api/v1/media/confirm`, { url: attachCode });
-    }
+    try {
+      const usernameIsEmail = await userRoleService.isAdminOrCustomerService(id);
 
-    return updated;
+      if (usernameIsEmail) {
+        if (phoneNumber) {
+          await userDynamoRepository.updatePhoneNumber(userDetailBackup.email, phoneNumber);
+        }
+        if (email) {
+          await userDynamoRepository.updateUsername(userDetailBackup.email, email);
+          await updateUsername(userDetailBackup.email, email, 'email');
+        }
+      } else {
+        if (phoneNumber) {
+          await userDynamoRepository.updateUsername(userDetailBackup.phoneNumber, phoneNumber);
+          await updateUsername(userDetailBackup.phoneNumber, phoneNumber, 'phone_number');
+        }
+      }
+
+      if (attachCode?.length) {
+        const fileManagementUrl = process.env.API_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod';
+        await axios.post(`${fileManagementUrl}/api/v1/media/confirm`, { url: attachCode });
+      }
+
+      return updated;
+    } catch (err) {
+      delete userDetailBackup.id
+      await userProfileRepository.update(id, userDetailBackup);
+      throw err;
+    }
   }
 
   async getProfileByUserId(userId: string): Promise<any> {

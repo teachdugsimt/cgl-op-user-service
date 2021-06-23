@@ -1,7 +1,13 @@
 import { Service, Initializer, Destructor } from 'fastify-decorators';
+import { In } from 'typeorm';
 import UserRoleRepository from '../repositories/user-role.repository'
 
-const ROLE_USER = 8
+enum Role {
+  Admin = 1,
+  CustomerService = 2,
+  Driver = 3,
+  Member = 4
+}
 
 const userRoleRepository = new UserRoleRepository();
 
@@ -13,9 +19,20 @@ export default class UserRoleService {
 
   async addRoleToUser(userId: number, roleId?: number): Promise<any> {
     if (!roleId) {
-      roleId = ROLE_USER // INITIAL_ROLE
+      roleId = Role.Member // INITIAL_ROLE
     }
     return userRoleRepository.add({ userId: userId, roleId: roleId });
+  }
+
+  async isAdminOrCustomerService(userId: number): Promise<any> {
+    const userRoles = await userRoleRepository.find({
+      where: {
+        userId: userId,
+        roleId: In([Role.Admin, Role.CustomerService])
+      },
+      take: 1
+    });
+    return userRoles?.length ? true : false
   }
 
   @Destructor()
