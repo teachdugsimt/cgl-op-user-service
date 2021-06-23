@@ -31,8 +31,8 @@ const AppClient = process.env.CLIENT_ID || '';
 
 const getTokens = (tokens: any) => {
   return {
-    idToken: tokens.getIdToken().getJwtToken(),
-    accessToken: tokens.getAccessToken().getJwtToken(),
+    idToken: tokens.getAccessToken().getJwtToken(),
+    accessToken: tokens.getIdToken().getJwtToken(),
     refreshToken: tokens.getRefreshToken().getToken(),
   };
 };
