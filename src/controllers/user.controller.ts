@@ -217,7 +217,7 @@ export default class UserController {
       if (req.params.id) {
         const data = { userId: req.params.id }
         console.log("Data to jwt :: ", data)
-        const base_url = "https://cargolink.com/user/upload?token="
+        const base_url = process.env.WEB_BACKOFFICE ? `${process.env.WEB_BACKOFFICE}/user/upload?token=` : "https://dev.backoffice.cargolink.co.th/user/upload?token="
         const token = util.generateJwtToken(data)
         const link = base_url + token
 
