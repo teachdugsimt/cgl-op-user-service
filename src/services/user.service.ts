@@ -118,9 +118,12 @@ export default class UserService {
   async createNormalUser(data: AddNormalUser): Promise<any> {
     try {
       const username = data.phoneNumber
+      if (!username.match(this.phoneNumberFormat)) {
+        throw new Error('Phone number first character should be +66 or etc.');
+      }
       const userExisting = await userDynamoRepository.findByUsernameWithPhoneNumber(username);
       if (userExisting) {
-        throw { responseCode: 'USER_EXISTING', message: 'Phone number must be unique' }
+        throw new Error('Phone number must be unique');
       }
       const userData = await userProfileRepository.add(data);
       console.log('userData :>> ', userData);
@@ -140,8 +143,8 @@ export default class UserService {
       return userData;
     } catch (err) {
       console.log('err :>> ', JSON.stringify(err));
-      const errorMessage: any = { code: 'CREATE_USER_ERROR', message: 'Cannot create user' }
-      throw errorMessage
+      // const errorMessage: any = { code: 'CREATE_USER_ERROR', message: 'Cannot create user' }
+      throw err;
     }
   }
 

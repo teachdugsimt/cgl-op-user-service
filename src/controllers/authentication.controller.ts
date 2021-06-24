@@ -57,11 +57,7 @@ export default class AuthenticationController {
       } else {
         const userIsActive = await this.userService.checkUserActive(username);
         if (!userIsActive) {
-          throw {
-            statusCode: 403,
-            code: 'InActiveException',
-            message: 'User is inactivated'
-          }
+          return reply.status(403).send({ error: 'InActiveException', message: 'User is inactivated' });
         }
       }
 

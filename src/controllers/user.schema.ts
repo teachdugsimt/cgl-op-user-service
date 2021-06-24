@@ -46,6 +46,13 @@ export const getUserSchema: FastifySchema = {
 }
 
 export const getUserOwnerSchema: FastifySchema = {
+  headers: {
+    type: 'object',
+    properties: {
+      authorization: { type: 'string' }
+    },
+    require: ['authorization']
+  },
   querystring: {
     userId: { type: 'string' }
   },
