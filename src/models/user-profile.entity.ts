@@ -91,6 +91,16 @@ export class UserProfile {
   })
   documentStatus!: "NO_DOCUMENT" | "WAIT_FOR_VERIFIED" | "VERIFIED";
 
+  @Column("enum", {
+    name: "legal_type",
+    enum: ['INDIVIDUAL', 'JURISTIC'],
+    default: () => "'NO_DOCUMENT'",
+  })
+  legalType!: 'INDIVIDUAL' | 'JURISTIC';
+
+  @Column("jsonb", { name: "document", nullable: true })
+  document!: object | null;
+
   userId!: string;
 
   @AfterLoad()

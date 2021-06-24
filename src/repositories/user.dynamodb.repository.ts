@@ -81,8 +81,7 @@ export default class UserDynamodbRepository {
     return Item && Object.keys(Item)?.length ? Item : null
   }
 
-  async update(data: UserCreate): Promise<any> {
-    const { username, password } = data
+  async updatePassword(username: string, password: string): Promise<any> {
     const params = {
       TableName: this.tableName,
       Key: { username: username },
@@ -92,7 +91,20 @@ export default class UserDynamodbRepository {
       },
     };
 
-    return await documentClient.update(params).promise();
+    return documentClient.update(params).promise();
+  }
+
+  async updatePhoneNumber(username: string, phoneNumber: string): Promise<any> {
+    const params = {
+      TableName: this.tableName,
+      Key: { username: username },
+      UpdateExpression: 'set phoneNumber = :newPhoneNumber',
+      ExpressionAttributeValues: {
+        ':newPhoneNumber': phoneNumber
+      },
+    };
+
+    return documentClient.update(params).promise();
   }
 
   async delete(username: string): Promise<any> {
@@ -104,6 +116,13 @@ export default class UserDynamodbRepository {
     };
 
     return documentClient.delete(params).promise();
+  }
+
+  async updateUsername(oldUsername: string, newUsername: string): Promise<any> {
+    const userDetailBackup = await this.findByUsername(oldUsername);
+    await this.delete(oldUsername);
+    await this.create({ ...userDetailBackup, username: newUsername });
+    return true;
   }
 
   // async deleteAttachRow(): Promise<any> {

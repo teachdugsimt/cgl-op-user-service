@@ -64,9 +64,12 @@ export default class UserController {
       schema: addUserSchema
     }
   })
-  async AddUser(req: FastifyRequest<{ Headers: { authorization: string }, Body: { name: string, phoneNumber: string, email?: string, userType?: number } }>, reply: FastifyReply): Promise<object> {
+  async AddUser(req: FastifyRequest<{
+    Headers: { authorization: string },
+    Body: { name: string, phoneNumber: string, email?: string, userType?: number, legalType?: 'INDIVIDUAL' | 'JURISTIC', attachCode?: string[] }
+  }>, reply: FastifyReply): Promise<object> {
     try {
-      const { name, phoneNumber, email, userType } = req.body
+      const { name, phoneNumber, email, userType, legalType = 'INDIVIDUAL', attachCode } = req.body
 
       const token = req.headers.authorization
       const data = {
@@ -76,12 +79,15 @@ export default class UserController {
         userType: userType,
         createdAt: new Date(),
         createdBy: util.getUserIdByToken(token),
-        confirmationToken: util.generateRefCode(64)
+        confirmationToken: util.generateRefCode(64),
+        legalType: legalType,
+        attachCode: attachCode
       }
 
       return await this.userService.createNormalUser(data);
     } catch (err) {
-      throw new Error(err)
+      console.log('err :>> ', err);
+      throw err
     }
   }
 
@@ -116,9 +122,13 @@ export default class UserController {
       schema: getUserOwnerSchema
     }
   })
-  async GetUsersOwner(req: FastifyRequest<{ Querystring: { userId: string } }>, reply: FastifyReply): Promise<object> {
+  async GetUsersOwner(req: FastifyRequest<{ Headers: { authorization: string }, Querystring: { userId: string } }>, reply: FastifyReply): Promise<object> {
     try {
-      const { userId } = req.query
+      const userId = req.query.userId;
+      const userIdFromToken = util.getUserIdByToken(req.headers.authorization);
+      if (userId !== userIdFromToken) {
+        return reply.status(401).send({ statusCode: 401, error: 'Unauthorized', message: 'User id does not match' });
+      }
       return await this.userService.getProfileByUserId(userId);
     } catch (err) {
       throw new Error(err)
@@ -134,17 +144,14 @@ export default class UserController {
   })
   async UpdateUsersOwner(req: FastifyRequest<{ Headers: { authorization: string }, Body: { userId: string, name?: string, phoneNumber?: string, email?: string } }>, reply: FastifyReply): Promise<object> {
     try {
-      const { userId, name, phoneNumber, email } = req.body
-      const id = util.decodeUserId(userId);
-      const token = req.headers.authorization;
-      const data = {
-        fullname: name,
-        phoneNumber: phoneNumber,
-        email: email,
-        updatedAt: new Date(),
-        updatedBy: util.getUserIdByToken(token),
+      const userId = req.body.userId
+      const userIdFromToken = util.getUserIdByToken(req.headers.authorization);
+
+      if (userId !== userIdFromToken) {
+        return reply.status(401).send({ statusCode: 401, error: 'Unauthorized', message: 'User id does not match' });
       }
-      return await userProfileRepository.update(id, data);
+
+      return await this.userService.updateUserProfile(req.body);
     } catch (err) {
       throw new Error(err)
     }
@@ -175,7 +182,7 @@ export default class UserController {
   })
   async UpdateUserByUserId(req: FastifyRequest<{
     Params: { userId: string },
-    Body: { name?: string, phoneNumber?: string, email?: string, attachCode?: string[] }
+    Body: { name?: string, phoneNumber?: string, email?: string, attachCode?: string[], legalType?: 'INDIVIDUAL' | 'JURISTIC' }
   }>, reply: FastifyReply): Promise<object> {
     try {
       const params = {
@@ -198,9 +205,9 @@ export default class UserController {
   async DeleteUserByUserId(req: FastifyRequest<{ Params: { userId: string } }>, reply: FastifyReply): Promise<object> {
     try {
       const id = util.decodeUserId(req.params.userId);
-      const userData = await userProfileRepository.findOne(id);
-      await userDynamoRepository.delete(userData.phoneNumber);
-      return await userProfileRepository.delete(id);
+      // const userData = await userProfileRepository.findOne(id);
+      // await userDynamoRepository.delete(userData.phoneNumber);
+      return await userProfileRepository.update(id, { status: 'INACTIVE' });
     } catch (err) {
       throw new Error(err)
     }

@@ -46,6 +46,13 @@ export const getUserSchema: FastifySchema = {
 }
 
 export const getUserOwnerSchema: FastifySchema = {
+  headers: {
+    type: 'object',
+    properties: {
+      authorization: { type: 'string' }
+    },
+    require: ['authorization']
+  },
   querystring: {
     userId: { type: 'string' }
   },
@@ -150,6 +157,10 @@ export const updateUserByUserIdSchema: FastifySchema = {
       name: { type: 'string' },
       phoneNumber: { type: 'string' },
       email: { type: 'string' },
+      legalType: {
+        type: 'string',
+        enum: ['INDIVIDUAL', 'JURISTIC']
+      },
       attachCode: {
         type: 'array',
         items: {
@@ -185,7 +196,17 @@ export const addUserSchema: FastifySchema = {
       name: { type: 'string' },
       phoneNumber: { type: 'string' },
       email: { type: 'string' },
-      userType: { type: 'number' }
+      userType: { type: 'number' },
+      legalType: {
+        type: 'string',
+        enum: ['INDIVIDUAL', 'JURISTIC']
+      },
+      attachCode: {
+        type: 'array',
+        items: {
+          type: 'string'
+        }
+      }
     },
     require: ['name', 'phoneNumber']
   },
