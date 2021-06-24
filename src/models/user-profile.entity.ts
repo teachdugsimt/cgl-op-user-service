@@ -98,6 +98,9 @@ export class UserProfile {
   })
   legalType!: 'INDIVIDUAL' | 'JURISTIC';
 
+  @Column("jsonb", { name: "document", nullable: true })
+  document!: object | null;
+
   userId!: string;
 
   @AfterLoad()

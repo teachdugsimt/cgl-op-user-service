@@ -200,6 +200,12 @@ export const addUserSchema: FastifySchema = {
       legalType: {
         type: 'string',
         enum: ['INDIVIDUAL', 'JURISTIC']
+      },
+      attachCode: {
+        type: 'array',
+        items: {
+          type: 'string'
+        }
       }
     },
     require: ['name', 'phoneNumber']

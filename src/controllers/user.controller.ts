@@ -66,10 +66,10 @@ export default class UserController {
   })
   async AddUser(req: FastifyRequest<{
     Headers: { authorization: string },
-    Body: { name: string, phoneNumber: string, email?: string, userType?: number, legalType?: 'INDIVIDUAL' | 'JURISTIC' }
+    Body: { name: string, phoneNumber: string, email?: string, userType?: number, legalType?: 'INDIVIDUAL' | 'JURISTIC', attachCode?: string[] }
   }>, reply: FastifyReply): Promise<object> {
     try {
-      const { name, phoneNumber, email, userType, legalType = 'INDIVIDUAL' } = req.body
+      const { name, phoneNumber, email, userType, legalType = 'INDIVIDUAL', attachCode } = req.body
 
       const token = req.headers.authorization
       const data = {
@@ -80,7 +80,8 @@ export default class UserController {
         createdAt: new Date(),
         createdBy: util.getUserIdByToken(token),
         confirmationToken: util.generateRefCode(64),
-        legalType: legalType
+        legalType: legalType,
+        attachCode: attachCode
       }
 
       return await this.userService.createNormalUser(data);

@@ -16,6 +16,7 @@ interface AddNormalUser {
   createdAt?: Date
   createdBy?: string
   confirmationToken?: string
+  attachCode?: string[]
 }
 
 interface UserFilterCondition {
@@ -125,7 +126,10 @@ export default class UserService {
       if (userExisting) {
         throw new Error('Phone number must be unique');
       }
-      const userData = await userProfileRepository.add(data);
+      const userData = await userProfileRepository.add({
+        ...data,
+        ...(data?.attachCode?.length ? { document: { idDoc: data.attachCode[0] } } : undefined)
+      });
       console.log('userData :>> ', userData);
       const password = utility.generatePassword(12);
       const userId = utility.encodeUserId(+userData.id);
@@ -140,6 +144,12 @@ export default class UserService {
       const userDynamo = await userDynamoRepository.create(userAttribute);
       console.log('userDynamo :>> ', userDynamo);
       await userRoleService.addRoleToUser(+userData.id);
+
+      if (data?.attachCode?.length) {
+        const fileManagementUrl = process.env.API_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod';
+        await axios.post(`${fileManagementUrl}/api/v1/media/confirm`, { url: data.attachCode });
+      }
+
       return userData;
     } catch (err) {
       console.log('err :>> ', JSON.stringify(err));
@@ -276,6 +286,7 @@ export default class UserService {
       }
 
       if (attachCode?.length) {
+        await userProfileRepository.update(id, { document: { idDoc: attachCode[0] } });
         const fileManagementUrl = process.env.API_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod';
         await axios.post(`${fileManagementUrl}/api/v1/media/confirm`, { url: attachCode });
       }
@@ -291,12 +302,15 @@ export default class UserService {
   async getProfileByUserId(userId: string): Promise<any> {
     const id = utility.decodeUserId(userId);
 
-    const fileManagementUrl = process.env.API_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod';
-    const response = await axios.get(`${fileManagementUrl}/api/v1/media/file`, { params: { userId: id, fileType: UserTypes.DOC, status: UserStatus.ACTIVE } });
-
     const user = await userProfileRepository.findOne(id);
+    let fileNames: Array<string> = []
 
-    const fileNames = response.data.data.map((user: any) => user.file_name);
+    if (user?.document) {
+      // idDoc
+      const fileManagementUrl = process.env.API_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod';
+      const response = await axios.get(`${fileManagementUrl}/api/v1/media/file-by-attach-code`, { params: { url: JSON.stringify(Object.values(user.document)) } });
+      fileNames = response.data.data.map((user: any) => user.file_name);
+    }
 
     return { ...user, files: fileNames }
   }

@@ -220,4 +220,6 @@ export interface UserProfileCreateEntity {
 
   legalType?: 'INDIVIDUAL' | 'JURISTIC'
 
+  document?: object
+
 }
