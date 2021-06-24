@@ -5,7 +5,7 @@ import UserProfileRepository from '../repositories/user-profile.repository'
 import UserRoleService from './user-role.service'
 import Utility from 'utility-layer/dist/security'
 import axios from 'axios';
-import { FindManyOptions, FindOperator, ILike } from 'typeorm';
+import { FindManyOptions, FindOperator, ILike, Like } from 'typeorm';
 import { UserProfileCreateEntity } from '../repositories/repository.types';
 
 interface AddNormalUser {
@@ -26,12 +26,13 @@ interface UserFilterCondition {
 }
 
 interface GetUserParams {
-  name?: string
+  fullName?: string
   email?: string
   phoneNumber?: string
   rowsPerPage?: number
   page?: number
   descending?: boolean
+  sortBy?: 'id' | 'email' | 'fullname' | 'phoneNumber'
 }
 
 interface GetUserResponse {
@@ -190,18 +191,20 @@ export default class UserService {
 
   async getAllUser(opts: GetUserParams): Promise<GetUserResponse> {
     let {
-      name,
+      fullName,
       email,
       phoneNumber,
       rowsPerPage,
       page,
-      descending } = opts
+      descending,
+      sortBy = 'id'
+    } = opts
 
-    let cond: UserFilterCondition = {}
+    let cond: UserFilterCondition[] = []
 
-    if (name) cond.fullname = ILike(`%${name}%`)
-    if (email) cond.email = ILike(`%${email}%`)
-    if (phoneNumber) cond.phoneNumber = ILike(`%${phoneNumber}%`)
+    if (fullName) cond.push({ fullname: Like(`%${fullName}%`) })
+    if (email) cond.push({ email: Like(`%${email}%`) })
+    if (phoneNumber) cond.push({ phoneNumber: Like(`%${phoneNumber}%`) })
 
     let numbOfPage: number;
     let numbOfLimit: number;
@@ -222,10 +225,13 @@ export default class UserService {
       take: numbOfLimit,
       skip: numbOfPage,
       order: {
-        id: descending ? 'DESC' : 'ASC'
+        [sortBy]: descending ? 'DESC' : 'ASC'
       }
     }
     const users = await userProfileRepository.findAndCount(filter);
+
+    // const users = await userProfileRepository.findAndOrCondition(cond, numbOfLimit, numbOfPage, !!descending, sortBy);
+    // console.log('JSON.stringify(users) :>> ', JSON.stringify(users));
 
     return {
       data: users[0] || [],

@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { FastifyInstanceToken, getInstanceByToken } from 'fastify-decorators';
-import { FindManyOptions, FindOneOptions } from 'typeorm';
+import { UserProfile } from '../models';
+import { FindManyOptions, FindOneOptions, ObjectLiteral, Repository } from 'typeorm';
 import { UserProfileCreateEntity } from "./repository.types";
 
 export default class UserProfileRepository {
@@ -21,7 +22,7 @@ export default class UserProfileRepository {
 
   async findOneByAttribute(attribute: UserProfileCreateEntity, options?: FindOneOptions): Promise<any> {
     const server: any = this.instance
-    const userProfileRepository = server?.db?.userProfile;
+    const userProfileRepository: Repository<UserProfile> = server?.db?.userProfile;
     return userProfileRepository.findOne(attribute, options);
   }
 
@@ -35,13 +36,13 @@ export default class UserProfileRepository {
 
   async find(filter: FindManyOptions): Promise<any> {
     const server: any = this.instance
-    const userProfileRepository = server?.db?.userProfile;
+    const userProfileRepository: Repository<UserProfile> = server?.db?.userProfile;
     return userProfileRepository.find(filter);
   }
 
   async findAndCount(filter: FindManyOptions): Promise<any> {
     const server: any = this.instance
-    const userProfileRepository = server?.db?.userProfile;
+    const userProfileRepository: Repository<UserProfile> = server?.db?.userProfile;
     return userProfileRepository.findAndCount(filter);
   }
 

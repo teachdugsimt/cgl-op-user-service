@@ -25,9 +25,13 @@ export const getUserSchema: FastifySchema = {
     descending: { type: 'boolean' },
     page: { type: 'number' },
     rowsPerPage: { type: 'number' },
-    name: { type: 'string' },
+    fullName: { type: 'string' },
     phoneNumber: { type: 'string' },
     email: { type: 'string' },
+    sortBy: {
+      type: 'string',
+      enum: ['id', 'email', 'fullname', 'phoneNumber']
+    },
   },
   response: {
     200: {

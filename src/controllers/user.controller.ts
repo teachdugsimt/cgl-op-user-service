@@ -98,7 +98,17 @@ export default class UserController {
       schema: getUserSchema,
     }
   })
-  async GetUsers(req: FastifyRequest<{ Querystring: { descending?: boolean, rowsPerPage?: number, page?: number, name?: string, phoneNumber?: string, email?: string } }>, reply: FastifyReply): Promise<object> {
+  async GetUsers(req: FastifyRequest<{
+    Querystring: {
+      descending?: boolean,
+      rowsPerPage?: number,
+      page?: number,
+      fullName?: string,
+      phoneNumber?: string,
+      email?: string,
+      sortBy?: 'id' | 'email' | 'fullname' | 'phoneNumber'
+    }
+  }>, reply: FastifyReply): Promise<object> {
     try {
       const { rowsPerPage = 10, page = 1 } = req.query
       const users = await this.userService.getAllUser(req.query);
