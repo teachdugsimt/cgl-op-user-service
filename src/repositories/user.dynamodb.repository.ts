@@ -7,7 +7,7 @@ interface UserCreate {
   phoneNumber?: string
 }
 
-const documentClient = new AWS.DynamoDB.DocumentClient()
+const documentClient = new AWS.DynamoDB.DocumentClient({ region: process.env.AWS_REGION || 'ap-southeast-1' })
 
 export default class UserDynamodbRepository {
 

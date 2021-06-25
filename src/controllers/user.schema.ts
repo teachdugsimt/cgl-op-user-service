@@ -249,7 +249,7 @@ export const deleteUserByUserIdSchema: FastifySchema = {
 export const generateUploadLinkResponse: FastifySchema = {
   // body: {},
   params: {
-    id: { type: 'string' }
+    userId: { type: 'string' }
   },
   response: {
     200: {
@@ -266,7 +266,7 @@ export const generateUploadLinkResponse: FastifySchema = {
 export const deleteUploadLinkResponse: FastifySchema = {
   // body: {},
   params: {
-    id: { type: 'string' }
+    userId: { type: 'string' }
   },
   response: {
     200: {
@@ -282,7 +282,7 @@ export const deleteUploadLinkResponse: FastifySchema = {
 export const updateUserProfileResponse: FastifySchema = {
   // body: {},
   params: {
-    id: { type: 'string' }
+    userId: { type: 'string' }
   },
   body: {
     type: 'object',
