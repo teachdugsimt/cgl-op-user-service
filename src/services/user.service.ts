@@ -202,9 +202,16 @@ export default class UserService {
 
     let cond: UserFilterCondition[] = []
 
-    if (fullName) cond.push({ fullname: Like(`%${fullName}%`) })
-    if (email) cond.push({ email: Like(`%${email}%`) })
-    if (phoneNumber) cond.push({ phoneNumber: Like(`%${phoneNumber}%`) })
+    if (fullName) {
+      cond.push({ fullname: Like(`%${fullName}%`) })
+    }
+    if (email) {
+      cond.push({ email: Like(`%${email}%`) })
+    }
+    if (phoneNumber) {
+      const phoneNumberForSearch: string = phoneNumber.slice(0, 1) === '0' ? phoneNumber.slice(1) : phoneNumber;
+      cond.push({ phoneNumber: Like(`%${phoneNumberForSearch}%`) })
+    }
 
     let numbOfPage: number;
     let numbOfLimit: number;
@@ -244,7 +251,7 @@ export default class UserService {
     return userProfileRepository.update(id, { status: status });
   }
 
-  async updateUserDocumentStatus(userId: string, status: 'NO_DOCUMENT' | 'WAIT_FOR_VERIFIED' | 'VERIFIED'): Promise<any> {
+  async updateUserDocumentStatus(userId: string, status: 'NO_DOCUMENT' | 'WAIT_FOR_VERIFIED' | 'VERIFIED' | 'REJECTED'): Promise<any> {
     const id = utility.decodeUserId(userId);
     return userProfileRepository.update(id, { documentStatus: status });
   }

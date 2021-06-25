@@ -39,15 +39,19 @@ export default class ResetPasswordController {
             message: 'REQUEST_SUCCESS'
           }
         }
-        return {
+        return reply
+          .status(400)
+          .send({
+            statusCode: 400,
+            message: 'TOKEN_EXPIRED'
+          });
+      }
+      return reply
+        .status(400)
+        .send({
           statusCode: 400,
-          message: 'TOKEN_EXPIRED'
-        }
-      }
-      return {
-        statusCode: 400,
-        message: 'TOKEN_DOES_NOT_EXIST'
-      }
+          message: 'TOKEN_DOES_NOT_EXIST'
+        });
     } catch (err) {
       console.log('err :>> ', err);
       throw new Error(err)
@@ -100,14 +104,16 @@ export default class ResetPasswordController {
           alreadySent: true
         }
       }
-      return {
-        statusCode: 400,
-        message: 'REQUEST_FAILURE',
-        alreadySent: false
-      }
+      return reply
+        .status(400)
+        .send({
+          statusCode: 400,
+          message: 'REQUEST_FAILURE',
+          alreadySent: false
+        });
     } catch (err) {
       console.log('err :>> ', err);
-      throw new Error(err)
+      throw err;
     }
   }
 
@@ -133,23 +139,29 @@ export default class ResetPasswordController {
               message: 'REQUEST_SUCCESS'
             }
           }
-          return {
+          return reply
+            .status(400)
+            .send({
+              statusCode: 400,
+              message: 'TOKEN_EXPIRED'
+            });
+        }
+        return reply
+          .status(400)
+          .send({
             statusCode: 400,
-            message: 'TOKEN_EXPIRED'
-          }
-        }
-        return {
+            message: 'TOKEN_DOES_NOT_EXIST'
+          });
+      }
+      return reply
+        .status(400)
+        .send({
           statusCode: 400,
-          message: 'TOKEN_DOES_NOT_EXIST'
-        }
-      }
-      return {
-        statusCode: 400,
-        message: 'PASSWORD_DO_NOT_MATCH',
-      }
+          message: 'PASSWORD_DO_NOT_MATCH',
+        });
     } catch (err) {
       console.log('err :>> ', err);
-      throw new Error(err)
+      throw err;
     }
   }
 

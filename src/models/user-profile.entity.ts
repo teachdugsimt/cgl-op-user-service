@@ -1,4 +1,4 @@
-import { AfterLoad, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { AfterLoad, BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import Utility from 'utility-layer/dist/security'
 
 const util = new Utility();
@@ -86,15 +86,15 @@ export class UserProfile {
 
   @Column("enum", {
     name: "document_status",
-    enum: ["NO_DOCUMENT", "WAIT_FOR_VERIFIED", "VERIFIED"],
+    enum: ["NO_DOCUMENT", "WAIT_FOR_VERIFIED", "VERIFIED", "REJECTED"],
     default: () => "'NO_DOCUMENT'",
   })
-  documentStatus!: "NO_DOCUMENT" | "WAIT_FOR_VERIFIED" | "VERIFIED";
+  documentStatus!: "NO_DOCUMENT" | "WAIT_FOR_VERIFIED" | "VERIFIED" | "REJECTED";
 
   @Column("enum", {
     name: "legal_type",
     enum: ['INDIVIDUAL', 'JURISTIC'],
-    default: () => "'NO_DOCUMENT'",
+    default: () => "'INDIVIDUAL'",
   })
   legalType!: 'INDIVIDUAL' | 'JURISTIC';
 
@@ -106,5 +106,11 @@ export class UserProfile {
   @AfterLoad()
   getUserId() {
     this.userId = util.encodeUserId(+this.id);
+  }
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  updateDateTime() {
+    this.updatedAt = new Date();
   }
 }

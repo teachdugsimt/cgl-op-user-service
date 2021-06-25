@@ -78,6 +78,9 @@ export const getUserOwnerSchema: FastifySchema = {
         createdBy: { type: 'string' },
         updatedBy: { type: 'string' },
         userId: { type: 'string' },
+        status: { type: 'string' },
+        documentStatus: { type: 'string' },
+        legalType: { type: 'string' },
         files: { type: 'array', items: { type: 'string' } }
       },
       additionalProperties: false
@@ -106,9 +109,21 @@ export const updateUserOwnerSchema: FastifySchema = {
     200: {
       type: 'object',
       properties: {
-        message: { type: 'string' },
-        responseCode: { type: 'number' },
-        data: {}
+        id: { type: 'number' },
+        confirmationToken: { type: 'string' },
+        fullname: { type: 'string' },
+        phoneNumber: { type: 'string' },
+        email: { type: 'string' },
+        userType: { type: 'number' },
+        enabled: { type: 'boolean' },
+        avatar: { type: 'string' },
+        deviceToken: { type: 'string' },
+        createdAt: { type: 'string' },
+        updatedAt: { type: 'string' },
+        createdBy: { type: 'string' },
+        updatedBy: { type: 'string' },
+        userId: { type: 'string' },
+        files: { type: 'array', items: { type: 'string' } }
       },
       additionalProperties: false
     }
@@ -137,6 +152,9 @@ export const getUserByUserIdSchema: FastifySchema = {
         createdBy: { type: 'string' },
         updatedBy: { type: 'string' },
         userId: { type: 'string' },
+        status: { type: 'string' },
+        documentStatus: { type: 'string' },
+        legalType: { type: 'string' },
         files: { type: 'array', items: { type: 'string' } }
       },
       additionalProperties: false
@@ -177,9 +195,21 @@ export const updateUserByUserIdSchema: FastifySchema = {
     200: {
       type: 'object',
       properties: {
-        message: { type: 'string' },
-        responseCode: { type: 'number' },
-        data: {}
+        id: { type: 'number' },
+        confirmationToken: { type: 'string' },
+        fullname: { type: 'string' },
+        phoneNumber: { type: 'string' },
+        email: { type: 'string' },
+        userType: { type: 'number' },
+        enabled: { type: 'boolean' },
+        avatar: { type: 'string' },
+        deviceToken: { type: 'string' },
+        createdAt: { type: 'string' },
+        updatedAt: { type: 'string' },
+        createdBy: { type: 'string' },
+        updatedBy: { type: 'string' },
+        userId: { type: 'string' },
+        files: { type: 'array', items: { type: 'string' } }
       },
       additionalProperties: false
     }
@@ -303,6 +333,13 @@ export const updateUserProfileResponse: FastifySchema = {
 }
 
 export const logoutSchema: FastifySchema = {
+  headers: {
+    type: 'object',
+    properties: {
+      authorization: { type: 'string' }
+    },
+    require: ['authorization']
+  },
   body: {
     type: 'object',
     properties: {
@@ -352,8 +389,8 @@ export const documentStatusSchema: FastifySchema = {
     properties: {
       status: {
         type: 'string',
-        enum: ['NO_DOCUMENT', 'WAIT_FOR_VERIFIED', 'VERIFIED'],
-        description: 'status allow with [NO_DOCUMENT, WAIT_FOR_VERIFIED, VERIFIED] only'
+        enum: ['NO_DOCUMENT', 'WAIT_FOR_VERIFIED', 'VERIFIED', 'REJECTED'],
+        description: 'status allow with [NO_DOCUMENT, WAIT_FOR_VERIFIED, VERIFIED, REJECTED] only'
       }
     },
   },
