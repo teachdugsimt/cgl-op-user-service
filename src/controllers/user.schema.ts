@@ -106,9 +106,21 @@ export const updateUserOwnerSchema: FastifySchema = {
     200: {
       type: 'object',
       properties: {
-        message: { type: 'string' },
-        responseCode: { type: 'number' },
-        data: {}
+        id: { type: 'number' },
+        confirmationToken: { type: 'string' },
+        fullname: { type: 'string' },
+        phoneNumber: { type: 'string' },
+        email: { type: 'string' },
+        userType: { type: 'number' },
+        enabled: { type: 'boolean' },
+        avatar: { type: 'string' },
+        deviceToken: { type: 'string' },
+        createdAt: { type: 'string' },
+        updatedAt: { type: 'string' },
+        createdBy: { type: 'string' },
+        updatedBy: { type: 'string' },
+        userId: { type: 'string' },
+        files: { type: 'array', items: { type: 'string' } }
       },
       additionalProperties: false
     }
@@ -177,9 +189,21 @@ export const updateUserByUserIdSchema: FastifySchema = {
     200: {
       type: 'object',
       properties: {
-        message: { type: 'string' },
-        responseCode: { type: 'number' },
-        data: {}
+        id: { type: 'number' },
+        confirmationToken: { type: 'string' },
+        fullname: { type: 'string' },
+        phoneNumber: { type: 'string' },
+        email: { type: 'string' },
+        userType: { type: 'number' },
+        enabled: { type: 'boolean' },
+        avatar: { type: 'string' },
+        deviceToken: { type: 'string' },
+        createdAt: { type: 'string' },
+        updatedAt: { type: 'string' },
+        createdBy: { type: 'string' },
+        updatedBy: { type: 'string' },
+        userId: { type: 'string' },
+        files: { type: 'array', items: { type: 'string' } }
       },
       additionalProperties: false
     }

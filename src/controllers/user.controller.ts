@@ -217,7 +217,8 @@ export default class UserController {
       const id = util.decodeUserId(req.params.userId);
       // const userData = await userProfileRepository.findOne(id);
       // await userDynamoRepository.delete(userData.phoneNumber);
-      return await userProfileRepository.update(id, { status: 'INACTIVE' });
+      await userProfileRepository.update(id, { status: 'INACTIVE' });
+      return reply.status(202);
     } catch (err) {
       throw new Error(err)
     }
@@ -353,7 +354,8 @@ export default class UserController {
   })
   async UpdateUserStatus(req: FastifyRequest<{ Params: { userId: string }, Body: { status: 'ACTIVE' | 'INACTIVE' } }>, reply: FastifyReply): Promise<any> {
     try {
-      return await this.userService.updateUserStatus(req.params.userId, req.body.status);
+      await this.userService.updateUserStatus(req.params.userId, req.body.status);
+      return reply.status(204);
     } catch (err) {
       console.log('err :>> ', err);
       throw new Error(err)
@@ -368,7 +370,8 @@ export default class UserController {
   })
   async UpdateDocumentStatus(req: FastifyRequest<{ Params: { userId: string }, Body: { status: 'NO_DOCUMENT' | 'WAIT_FOR_VERIFIED' | 'VERIFIED' } }>, reply: FastifyReply): Promise<any> {
     try {
-      return await this.userService.updateUserDocumentStatus(req.params.userId, req.body.status);
+      await this.userService.updateUserDocumentStatus(req.params.userId, req.body.status);
+      return reply.status(204);
     } catch (err) {
       console.log('err :>> ', err);
       throw new Error(err)
