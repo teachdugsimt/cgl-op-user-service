@@ -327,6 +327,13 @@ export const updateUserProfileResponse: FastifySchema = {
 }
 
 export const logoutSchema: FastifySchema = {
+  headers: {
+    type: 'object',
+    properties: {
+      authorization: { type: 'string' }
+    },
+    require: ['authorization']
+  },
   body: {
     type: 'object',
     properties: {
@@ -376,8 +383,8 @@ export const documentStatusSchema: FastifySchema = {
     properties: {
       status: {
         type: 'string',
-        enum: ['NO_DOCUMENT', 'WAIT_FOR_VERIFIED', 'VERIFIED'],
-        description: 'status allow with [NO_DOCUMENT, WAIT_FOR_VERIFIED, VERIFIED] only'
+        enum: ['NO_DOCUMENT', 'WAIT_FOR_VERIFIED', 'VERIFIED', 'REJECTED'],
+        description: 'status allow with [NO_DOCUMENT, WAIT_FOR_VERIFIED, VERIFIED, REJECTED] only'
       }
     },
   },

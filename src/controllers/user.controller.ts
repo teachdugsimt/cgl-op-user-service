@@ -368,7 +368,7 @@ export default class UserController {
       schema: documentStatusSchema
     }
   })
-  async UpdateDocumentStatus(req: FastifyRequest<{ Params: { userId: string }, Body: { status: 'NO_DOCUMENT' | 'WAIT_FOR_VERIFIED' | 'VERIFIED' } }>, reply: FastifyReply): Promise<any> {
+  async UpdateDocumentStatus(req: FastifyRequest<{ Params: { userId: string }, Body: { status: 'NO_DOCUMENT' | 'WAIT_FOR_VERIFIED' | 'VERIFIED' | 'REJECTED' } }>, reply: FastifyReply): Promise<any> {
     try {
       await this.userService.updateUserDocumentStatus(req.params.userId, req.body.status);
       return reply.status(204);

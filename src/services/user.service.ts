@@ -251,7 +251,7 @@ export default class UserService {
     return userProfileRepository.update(id, { status: status });
   }
 
-  async updateUserDocumentStatus(userId: string, status: 'NO_DOCUMENT' | 'WAIT_FOR_VERIFIED' | 'VERIFIED'): Promise<any> {
+  async updateUserDocumentStatus(userId: string, status: 'NO_DOCUMENT' | 'WAIT_FOR_VERIFIED' | 'VERIFIED' | 'REJECTED'): Promise<any> {
     const id = utility.decodeUserId(userId);
     return userProfileRepository.update(id, { documentStatus: status });
   }

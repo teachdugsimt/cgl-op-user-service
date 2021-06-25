@@ -216,7 +216,7 @@ export interface UserProfileCreateEntity {
 
   status?: 'ACTIVE' | 'INACTIVE';
 
-  documentStatus?: 'NO_DOCUMENT' | 'WAIT_FOR_VERIFIED' | 'VERIFIED';
+  documentStatus?: 'NO_DOCUMENT' | 'WAIT_FOR_VERIFIED' | 'VERIFIED' | 'REJECTED';
 
   legalType?: 'INDIVIDUAL' | 'JURISTIC'
 
