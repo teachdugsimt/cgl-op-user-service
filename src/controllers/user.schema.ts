@@ -78,6 +78,9 @@ export const getUserOwnerSchema: FastifySchema = {
         createdBy: { type: 'string' },
         updatedBy: { type: 'string' },
         userId: { type: 'string' },
+        status: { type: 'string' },
+        documentStatus: { type: 'string' },
+        legalType: { type: 'string' },
         files: { type: 'array', items: { type: 'string' } }
       },
       additionalProperties: false
@@ -149,6 +152,9 @@ export const getUserByUserIdSchema: FastifySchema = {
         createdBy: { type: 'string' },
         updatedBy: { type: 'string' },
         userId: { type: 'string' },
+        status: { type: 'string' },
+        documentStatus: { type: 'string' },
+        legalType: { type: 'string' },
         files: { type: 'array', items: { type: 'string' } }
       },
       additionalProperties: false
