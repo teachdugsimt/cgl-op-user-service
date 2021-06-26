@@ -155,7 +155,7 @@ export default class UserDynamodbRepository {
     return documentClient.put(params).promise();
   }
 
-  async deleteUploadLink(user_id: string): Promise<any> {
+  async deleteUploadLink(user_id: string | number): Promise<any> {
     const params = {
       TableName: process.env.UPLOAD_LINK_DYNAMO || 'cgl_user_upload_link',
       Key: {
@@ -166,14 +166,13 @@ export default class UserDynamodbRepository {
     return documentClient.delete(params).promise();
   }
 
-  async findAttachCodeWithUser(user_id: string): Promise<any> {
+  async findAttachCodeWithUser(user_id: number | string): Promise<any> {
     const params = {
       TableName: process.env.UPLOAD_LINK_DYNAMO || 'cgl_user_upload_link',
       Key: {
         user_id,
       },
     };
-
     const { Item } = await documentClient.get(params).promise();
     return Item && Object.keys(Item)?.length ? Item : null
   }
@@ -182,5 +181,5 @@ export default class UserDynamodbRepository {
 
 export interface UploadLink {
   token: string
-  user_id: string
+  user_id: string | number
 }

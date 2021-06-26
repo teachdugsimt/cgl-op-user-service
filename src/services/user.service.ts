@@ -338,6 +338,27 @@ export default class UserService {
     return !!user
   }
 
+  async updateUserFile(userId: number, url: string[]): Promise<any> {
+    const findUser = await userProfileRepository.findOne(userId)
+    if (!findUser.document) {
+      const newDocument = {}
+      url.forEach((e, i) => {
+        newDocument[i] = e
+      })
+      findUser.document = newDocument
+    } else {
+      const tmpDocument = findUser.document
+      const startLength = Object.keys(tmpDocument).length
+      url.forEach((e, i) => {
+        tmpDocument[startLength + i] = e
+      })
+      console.log(tmpDocument)
+      findUser.document = tmpDocument
+    }
+    const updateProfile = await userProfileRepository.update(userId, findUser)
+    return updateProfile
+  }
+
   @Destructor()
   async destroy(): Promise<void> {
   }
