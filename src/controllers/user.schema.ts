@@ -128,7 +128,7 @@ export const updateUserOwnerSchema: FastifySchema = {
       additionalProperties: false
     }
   }
-} // 58.137.230.146
+}
 
 export const getUserByUserIdSchema: FastifySchema = {
   params: {
@@ -249,10 +249,16 @@ export const addUserSchema: FastifySchema = {
       type: 'object',
       properties: {
         id: { type: 'number' },
+        userId: { type: 'string' },
         fullName: { type: 'string' },
         phoneNumber: { type: 'string' },
         email: { type: 'string' },
-        userType: { type: 'number' }
+        userType: { type: 'number' },
+        legalType: { type: 'string' },
+        document: {
+          type: 'object',
+          properties: {}
+        }
       },
       additionalProperties: false
     }
