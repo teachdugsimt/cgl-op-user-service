@@ -69,19 +69,16 @@ export default class UserController {
     Body: { fullName: string, phoneNumber: string, email?: string, userType?: number, legalType?: 'INDIVIDUAL' | 'JURISTIC', attachCode?: string[] }
   }>, reply: FastifyReply): Promise<object> {
     try {
-      const { fullName, phoneNumber, email, userType, legalType = 'INDIVIDUAL', attachCode } = req.body
-
       const token = req.headers.authorization
+      const userId = util.getUserIdByToken(token);
+      const decodeUserId = util.decodeUserId(userId);
+
       const data = {
-        fullName: fullName,
-        phoneNumber: phoneNumber,
-        email: email,
-        userType: userType,
+        ...req.body,
+        legalType: req.body.legalType ?? 'INDIVIDUAL',
         createdAt: new Date(),
-        createdBy: util.getUserIdByToken(token),
+        createdBy: decodeUserId,
         confirmationToken: util.generateRefCode(64),
-        legalType: legalType,
-        attachCode: attachCode
       }
 
       return await this.userService.createNormalUser(data);
