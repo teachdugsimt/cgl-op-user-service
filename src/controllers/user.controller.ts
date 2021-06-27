@@ -73,7 +73,7 @@ export default class UserController {
 
       const token = req.headers.authorization
       const data = {
-        fullname: fullName,
+        fullName: fullName,
         phoneNumber: phoneNumber,
         email: email,
         userType: userType,
