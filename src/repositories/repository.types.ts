@@ -8,7 +8,7 @@ export interface UserDataCreateEntity {
 
   enabled?: boolean;
 
-  fullname?: string;
+  fullName?: string;
 
   password?: string;
 
@@ -196,7 +196,7 @@ export interface UserProfileCreateEntity {
 
   phoneNumber?: string;
 
-  fullname?: string;
+  fullName?: string;
 
   enabled?: boolean;
 

@@ -66,14 +66,14 @@ export default class UserController {
   })
   async AddUser(req: FastifyRequest<{
     Headers: { authorization: string },
-    Body: { name: string, phoneNumber: string, email?: string, userType?: number, legalType?: 'INDIVIDUAL' | 'JURISTIC', attachCode?: string[] }
+    Body: { fullName: string, phoneNumber: string, email?: string, userType?: number, legalType?: 'INDIVIDUAL' | 'JURISTIC', attachCode?: string[] }
   }>, reply: FastifyReply): Promise<object> {
     try {
-      const { name, phoneNumber, email, userType, legalType = 'INDIVIDUAL', attachCode } = req.body
+      const { fullName, phoneNumber, email, userType, legalType = 'INDIVIDUAL', attachCode } = req.body
 
       const token = req.headers.authorization
       const data = {
-        fullname: name,
+        fullname: fullName,
         phoneNumber: phoneNumber,
         email: email,
         userType: userType,
@@ -106,7 +106,7 @@ export default class UserController {
       fullName?: string,
       phoneNumber?: string,
       email?: string,
-      sortBy?: 'id' | 'email' | 'fullname' | 'phoneNumber'
+      sortBy?: 'id' | 'email' | 'fullName' | 'phoneNumber'
     }
   }>, reply: FastifyReply): Promise<object> {
     try {
@@ -152,7 +152,7 @@ export default class UserController {
       schema: updateUserOwnerSchema
     }
   })
-  async UpdateUsersOwner(req: FastifyRequest<{ Headers: { authorization: string }, Body: { userId: string, name?: string, phoneNumber?: string, email?: string } }>, reply: FastifyReply): Promise<object> {
+  async UpdateUsersOwner(req: FastifyRequest<{ Headers: { authorization: string }, Body: { userId: string, fullName?: string, phoneNumber?: string, email?: string } }>, reply: FastifyReply): Promise<object> {
     try {
       const userId = req.body.userId
       const userIdFromToken = util.getUserIdByToken(req.headers.authorization);
@@ -192,7 +192,7 @@ export default class UserController {
   })
   async UpdateUserByUserId(req: FastifyRequest<{
     Params: { userId: string },
-    Body: { name?: string, phoneNumber?: string, email?: string, attachCode?: string[], legalType?: 'INDIVIDUAL' | 'JURISTIC' }
+    Body: { fullName?: string, phoneNumber?: string, email?: string, attachCode?: string[], legalType?: 'INDIVIDUAL' | 'JURISTIC' }
   }>, reply: FastifyReply): Promise<object> {
     try {
       const params = {

@@ -30,7 +30,7 @@ export class UserProfile {
     nullable: true,
     length: 120,
   })
-  fullname!: string | null;
+  fullName!: string | null;
 
   @Column("boolean", { name: "enabled", nullable: true, default: () => "true" })
   enabled!: boolean | null;

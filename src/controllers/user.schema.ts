@@ -30,7 +30,7 @@ export const getUserSchema: FastifySchema = {
     email: { type: 'string' },
     sortBy: {
       type: 'string',
-      enum: ['id', 'email', 'fullname', 'phoneNumber']
+      enum: ['id', 'email', 'fullName', 'phoneNumber']
     },
   },
   response: {
@@ -66,7 +66,7 @@ export const getUserOwnerSchema: FastifySchema = {
       properties: {
         id: { type: 'number' },
         confirmationToken: { type: 'string' },
-        fullname: { type: 'string' },
+        fullName: { type: 'string' },
         phoneNumber: { type: 'string' },
         email: { type: 'string' },
         userType: { type: 'number' },
@@ -100,7 +100,7 @@ export const updateUserOwnerSchema: FastifySchema = {
     type: 'object',
     properties: {
       userId: { type: 'string' },
-      name: { type: 'string' },
+      fullName: { type: 'string' },
       phoneNumber: { type: 'string' },
       email: { type: 'string' },
     }
@@ -111,7 +111,7 @@ export const updateUserOwnerSchema: FastifySchema = {
       properties: {
         id: { type: 'number' },
         confirmationToken: { type: 'string' },
-        fullname: { type: 'string' },
+        fullName: { type: 'string' },
         phoneNumber: { type: 'string' },
         email: { type: 'string' },
         userType: { type: 'number' },
@@ -128,7 +128,7 @@ export const updateUserOwnerSchema: FastifySchema = {
       additionalProperties: false
     }
   }
-}
+} // 58.137.230.146
 
 export const getUserByUserIdSchema: FastifySchema = {
   params: {
@@ -140,7 +140,7 @@ export const getUserByUserIdSchema: FastifySchema = {
       properties: {
         id: { type: 'number' },
         confirmationToken: { type: 'string' },
-        fullname: { type: 'string' },
+        fullName: { type: 'string' },
         phoneNumber: { type: 'string' },
         email: { type: 'string' },
         userType: { type: 'number' },
@@ -176,7 +176,7 @@ export const updateUserByUserIdSchema: FastifySchema = {
   body: {
     type: 'object',
     properties: {
-      name: { type: 'string' },
+      fullName: { type: 'string' },
       phoneNumber: { type: 'string' },
       email: { type: 'string' },
       legalType: {
@@ -197,7 +197,7 @@ export const updateUserByUserIdSchema: FastifySchema = {
       properties: {
         id: { type: 'number' },
         confirmationToken: { type: 'string' },
-        fullname: { type: 'string' },
+        fullName: { type: 'string' },
         phoneNumber: { type: 'string' },
         email: { type: 'string' },
         userType: { type: 'number' },
@@ -227,7 +227,7 @@ export const addUserSchema: FastifySchema = {
   body: {
     type: 'object',
     properties: {
-      name: { type: 'string' },
+      fullName: { type: 'string' },
       phoneNumber: { type: 'string' },
       email: { type: 'string' },
       userType: { type: 'number' },
@@ -242,14 +242,14 @@ export const addUserSchema: FastifySchema = {
         }
       }
     },
-    require: ['name', 'phoneNumber']
+    require: ['fullName', 'phoneNumber']
   },
   response: {
     200: {
       type: 'object',
       properties: {
         id: { type: 'number' },
-        fullname: { type: 'string' },
+        fullName: { type: 'string' },
         phoneNumber: { type: 'string' },
         email: { type: 'string' },
         userType: { type: 'number' }

@@ -10,7 +10,7 @@ import { UserProfileCreateEntity } from '../repositories/repository.types';
 
 interface AddNormalUser {
   phoneNumber: string
-  fullname?: string
+  fullName?: string
   email?: string
   userType?: number
   createdAt?: Date
@@ -20,7 +20,7 @@ interface AddNormalUser {
 }
 
 interface UserFilterCondition {
-  fullname?: FindOperator<string>
+  fullName?: FindOperator<string>
   email?: FindOperator<string>
   phoneNumber?: FindOperator<string>
 }
@@ -32,7 +32,7 @@ interface GetUserParams {
   rowsPerPage?: number
   page?: number
   descending?: boolean
-  sortBy?: 'id' | 'email' | 'fullname' | 'phoneNumber'
+  sortBy?: 'id' | 'email' | 'fullName' | 'phoneNumber'
 }
 
 interface GetUserResponse {
@@ -42,7 +42,7 @@ interface GetUserResponse {
 
 interface UpdateUserProfile {
   userId: string
-  name?: string
+  fullName?: string
   phoneNumber?: string
   email?: string
   legalType?: 'INDIVIDUAL' | 'JURISTIC'
@@ -203,14 +203,14 @@ export default class UserService {
     let cond: UserFilterCondition[] = []
 
     if (fullName) {
-      cond.push({ fullname: Like(`%${fullName}%`) })
+      cond.push({ fullName: ILike(`%${fullName}%`) })
     }
     if (email) {
-      cond.push({ email: Like(`%${email}%`) })
+      cond.push({ email: ILike(`%${email}%`) })
     }
     if (phoneNumber) {
       const phoneNumberForSearch: string = phoneNumber.slice(0, 1) === '0' ? phoneNumber.slice(1) : phoneNumber;
-      cond.push({ phoneNumber: Like(`%${phoneNumberForSearch}%`) })
+      cond.push({ phoneNumber: ILike(`%${phoneNumberForSearch}%`) })
     }
 
     let numbOfPage: number;
@@ -257,7 +257,7 @@ export default class UserService {
   }
 
   async updateUserProfile(params: UpdateUserProfile): Promise<any> {
-    const { userId, name, email, phoneNumber, attachCode, legalType } = params;
+    const { userId, fullName, email, phoneNumber, attachCode, legalType } = params;
     let data: UserProfileCreateEntity = {}
 
     if (phoneNumber) {
@@ -271,7 +271,7 @@ export default class UserService {
 
     data = {
       ...data,
-      ...(name ? { fullname: name } : undefined),
+      ...(fullName ? { fullName: fullName } : undefined),
       ...(email ? { email: email } : undefined),
       ...(legalType ? { legalType: legalType } : undefined),
       updatedAt: new Date(),

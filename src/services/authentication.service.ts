@@ -156,14 +156,14 @@ export default class AuthenticationService {
 
   async getUserProfile(filter: FilterUserProfile): Promise<any> {
     const options = {
-      select: ['id', 'fullname', 'phoneNumber', 'email']
+      select: ['id', 'fullName', 'phoneNumber', 'email']
     }
     const userProfile = await userRepository.findOneByAttribute(filter, options);
     return {
       id: userProfile.id,
       userId: utility.encodeUserId(userProfile.id),
-      companyName: userProfile.fullname,
-      fullname: userProfile.fullname,
+      companyName: userProfile.fullName,
+      fullName: userProfile.fullName,
       mobileNo: userProfile.phone_number,
       email: userProfile.email,
       avatar: null
