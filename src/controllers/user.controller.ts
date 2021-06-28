@@ -25,6 +25,7 @@ import UserService from '../services/user.service';
 import UpdateUserProfileService from '../services/update-user-profile.service'
 import UserDynamodbRepository, { UploadLink } from '../repositories/user.dynamodb.repository';
 import { userInfo } from 'os';
+import ValidateEncodeIdFormat from '../services/validate-encode-id-format.service';
 
 const userProfileRepository = new UserProfileRepository();
 const userDynamoRepository = new UserDynamoRepository();
@@ -122,7 +123,6 @@ export default class UserController {
     }
   }
 
-  // @ValidateParam(getUserOwnerSchema)
   @GET({
     url: '/me',
     options: {
@@ -142,7 +142,6 @@ export default class UserController {
     }
   }
 
-  // @ValidateParam(updateUserOwnerSchema)
   @PATCH({
     url: '/me',
     options: {
@@ -164,7 +163,7 @@ export default class UserController {
     }
   }
 
-  // @ValidateParam(getUserByUserIdSchema)
+  @ValidateEncodeIdFormat()
   @GET({
     url: '/:userId',
     options: {
@@ -180,7 +179,7 @@ export default class UserController {
     }
   }
 
-  // @ValidateParam(updateUserByUserIdSchema)
+  @ValidateEncodeIdFormat()
   @PATCH({
     url: '/:userId',
     options: {
