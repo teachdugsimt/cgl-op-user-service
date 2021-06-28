@@ -151,7 +151,10 @@ export default class UserService {
         await axios.post(`${fileManagementUrl}/api/v1/media/confirm`, { url: data.attachCode });
       }
 
-      return userData;
+      return {
+        ...userData,
+        userId: utility.encodeUserId(userData.id)
+      };
     } catch (err) {
       console.log('err :>> ', JSON.stringify(err));
       // const errorMessage: any = { code: 'CREATE_USER_ERROR', message: 'Cannot create user' }
