@@ -24,7 +24,7 @@ export default class UserRoleService {
     return userRoleRepository.add({ userId: userId, roleId: roleId });
   }
 
-  async isAdminOrCustomerService(userId: number): Promise<any> {
+  async isBackofficeUser(userId: number): Promise<any> {
     const userRoles = await userRoleRepository.find({
       where: {
         userId: userId,

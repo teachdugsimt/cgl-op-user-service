@@ -280,37 +280,31 @@ export default class UserService {
       updatedAt: new Date(),
     }
 
-    const userDetailBackup = await userProfileRepository.findOne(id);
-    const updated = userProfileRepository.update(id, data);
-
     try {
-      const usernameIsEmail = await userRoleService.isAdminOrCustomerService(id);
+      const userDetailBackup = await userProfileRepository.findOne(id);
+      const isAdminOrCustomerService = await userRoleService.isBackofficeUser(id);
 
-      if (usernameIsEmail) {
-        if (phoneNumber) {
-          await userDynamoRepository.updatePhoneNumber(userDetailBackup.email, phoneNumber);
-        }
-        if (email) {
-          await userDynamoRepository.updateUsername(userDetailBackup.email, email);
-          await updateUsername(userDetailBackup.email, email, 'email');
-        }
-      } else {
-        if (phoneNumber) {
-          await userDynamoRepository.updateUsername(userDetailBackup.phoneNumber, phoneNumber);
-          await updateUsername(userDetailBackup.phoneNumber, phoneNumber, 'phone_number');
-        }
+      if (phoneNumber) {
+        const username = isAdminOrCustomerService ? userDetailBackup.email : userDetailBackup.phoneNumber
+        await userDynamoRepository.updateUsername(username, phoneNumber);
+      }
+
+      if (isAdminOrCustomerService && email) {
+        await userDynamoRepository.updateUsername(userDetailBackup.email, email);
+        await updateUsername(userDetailBackup.email, email, 'email');
       }
 
       if (attachCode?.length) {
-        await userProfileRepository.update(id, { document: { idDoc: attachCode[0] } });
+        data = { ...data, document: { idDoc: attachCode[0] }, documentStatus: 'WAIT_FOR_VERIFIED' };
         const fileManagementUrl = process.env.API_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod';
         await axios.post(`${fileManagementUrl}/api/v1/media/confirm`, { url: attachCode });
       }
 
-      return updated;
+      return userProfileRepository.update(id, data);
     } catch (err) {
-      delete userDetailBackup.id
-      await userProfileRepository.update(id, userDetailBackup);
+      console.log('err :>> ', err);
+      // delete userDetailBackup.id
+      // await userProfileRepository.update(id, userDetailBackup);
       throw err;
     }
   }
