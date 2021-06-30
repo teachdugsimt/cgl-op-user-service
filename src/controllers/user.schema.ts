@@ -183,7 +183,7 @@ export const updateUserByUserIdSchema: FastifySchema = {
         type: 'string',
         enum: ['INDIVIDUAL', 'JURISTIC']
       },
-      attachCode: {
+      url: {
         type: 'array',
         items: {
           type: 'string'
@@ -235,7 +235,7 @@ export const addUserSchema: FastifySchema = {
         type: 'string',
         enum: ['INDIVIDUAL', 'JURISTIC']
       },
-      attachCode: {
+      url: {
         type: 'array',
         items: {
           type: 'string'
