@@ -231,7 +231,7 @@ export default class UserController {
       if (req.params.userId) {
 
         const decodeId = util.decodeUserId(req.params.userId)
-        const data = { userId: decodeId }
+        const data = { userId: req.params.userId }
         console.log("Data to jwt :: ", data)
 
         const base_url = process.env.BACK_OFFICE_URL ? `${process.env.BACK_OFFICE_URL}/${process.env.USER_UPLOAD || 'user/upload/'}?token=` : "https://dev.backoffice.cargolink.co.th/user/upload?token="
@@ -247,8 +247,8 @@ export default class UserController {
           user_id: decodeId
         }
         if (everHaveToken && typeof everHaveToken && Object.keys(everHaveToken).length > 0) {
-          await repo.deleteUploadLink(decodeId)
-          result = await repo.createUploadLinkData(uploadLinkObject)
+          // await repo.deleteUploadLink(decodeId)
+          result = await repo.updateToken(uploadLinkObject)
         } else {
           result = await repo.createUploadLinkData(uploadLinkObject)
         }

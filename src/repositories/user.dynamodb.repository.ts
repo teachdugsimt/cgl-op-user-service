@@ -177,6 +177,22 @@ export default class UserDynamodbRepository {
     return Item && Object.keys(Item)?.length ? Item : null
   }
 
+  async updateToken(objectLink: UploadLink): Promise<any> {
+    const params: DocumentClient.UpdateItemInput = {
+      TableName:  process.env.UPLOAD_LINK_DYNAMO || 'cgl_user_upload_link',
+      Key: { user_id: objectLink.user_id },
+      UpdateExpression: 'set #tok = :newToken',
+      ExpressionAttributeValues: {
+        ':newToken': objectLink.token
+      },
+      ExpressionAttributeNames: {
+        '#tok': 'token'
+      }
+    };
+
+    return documentClient.update(params).promise();
+  }
+
 }
 
 export interface UploadLink {

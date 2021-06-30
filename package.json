@@ -40,7 +40,7 @@
     "pg": "^8.6.0",
     "pino-pretty": "^4.7.1",
     "typeorm": "^0.2.32",
-    "utility-layer": "git+https://git-codecommit.ap-southeast-1.amazonaws.com/v1/repos/utility-layer#master"
+    "utility-layer": "git+https://git-codecommit.ap-southeast-1.amazonaws.com/v1/repos/utility-layer"
   },
   "devDependencies": {
     "@commitlint/cli": "^12.1.1",

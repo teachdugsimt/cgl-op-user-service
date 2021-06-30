@@ -352,6 +352,7 @@ export default class UserService {
       console.log(tmpDocument)
       findUser.document = tmpDocument
     }
+    findUser.documentStatus = "WAIT_FOR_VERIFIED"
     const updateProfile = await userProfileRepository.update(userId, findUser)
     return updateProfile
   }
