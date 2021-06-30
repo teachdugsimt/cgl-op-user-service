@@ -16,7 +16,7 @@ interface AddNormalUser {
   createdAt?: Date
   createdBy?: string
   confirmationToken?: string
-  attachCode?: string[]
+  url?: string[]
 }
 
 interface UserFilterCondition {
@@ -46,7 +46,7 @@ interface UpdateUserProfile {
   phoneNumber?: string
   email?: string
   legalType?: 'INDIVIDUAL' | 'JURISTIC'
-  attachCode?: string[]
+  url?: string[]
 }
 
 enum UserStatus {
@@ -129,7 +129,7 @@ export default class UserService {
       }
       const userData = await userProfileRepository.add({
         ...data,
-        ...(data?.attachCode?.length ? { document: { idDoc: data.attachCode[0] } } : undefined)
+        ...(data?.url?.length ? { document: { idDoc: data.url[0] } } : undefined)
       });
       console.log('userData :>> ', userData);
       const password = utility.generatePassword(12);
@@ -146,9 +146,9 @@ export default class UserService {
       console.log('userDynamo :>> ', userDynamo);
       await userRoleService.addRoleToUser(+userData.id);
 
-      if (data?.attachCode?.length) {
+      if (data?.url?.length) {
         const fileManagementUrl = process.env.API_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod';
-        await axios.post(`${fileManagementUrl}/api/v1/media/confirm`, { url: data.attachCode });
+        await axios.post(`${fileManagementUrl}/api/v1/media/confirm`, { url: data.url });
       }
 
       return {
@@ -260,7 +260,7 @@ export default class UserService {
   }
 
   async updateUserProfile(params: UpdateUserProfile): Promise<any> {
-    const { userId, fullName, email, phoneNumber, attachCode, legalType } = params;
+    const { userId, fullName, email, phoneNumber, url, legalType } = params;
     let data: UserProfileCreateEntity = {}
 
     if (phoneNumber) {
@@ -294,10 +294,10 @@ export default class UserService {
         await updateUsername(userDetailBackup.email, email, 'email');
       }
 
-      if (attachCode?.length) {
-        data = { ...data, document: { idDoc: attachCode[0] }, documentStatus: 'WAIT_FOR_VERIFIED' };
+      if (url?.length) {
+        data = { ...data, document: { idDoc: url[0] }, documentStatus: 'WAIT_FOR_VERIFIED' };
         const fileManagementUrl = process.env.API_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod';
-        await axios.post(`${fileManagementUrl}/api/v1/media/confirm`, { url: attachCode });
+        await axios.post(`${fileManagementUrl}/api/v1/media/confirm`, { url: url });
       }
 
       return userProfileRepository.update(id, data);

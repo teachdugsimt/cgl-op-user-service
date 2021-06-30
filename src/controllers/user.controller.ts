@@ -67,7 +67,7 @@ export default class UserController {
   })
   async AddUser(req: FastifyRequest<{
     Headers: { authorization: string },
-    Body: { fullName: string, phoneNumber: string, email?: string, userType?: number, legalType?: 'INDIVIDUAL' | 'JURISTIC', attachCode?: string[] }
+    Body: { fullName: string, phoneNumber: string, email?: string, userType?: number, legalType?: 'INDIVIDUAL' | 'JURISTIC', url?: string[] }
   }>, reply: FastifyReply): Promise<object> {
     try {
       const token = req.headers.authorization
@@ -85,6 +85,7 @@ export default class UserController {
       return await this.userService.createNormalUser(data);
     } catch (err) {
       console.log('err :>> ', err);
+      reply.status(400);
       throw err
     }
   }
@@ -188,7 +189,7 @@ export default class UserController {
   })
   async UpdateUserByUserId(req: FastifyRequest<{
     Params: { userId: string },
-    Body: { fullName?: string, phoneNumber?: string, email?: string, attachCode?: string[], legalType?: 'INDIVIDUAL' | 'JURISTIC' }
+    Body: { fullName?: string, phoneNumber?: string, email?: string, url?: string[], legalType?: 'INDIVIDUAL' | 'JURISTIC' }
   }>, reply: FastifyReply): Promise<object> {
     try {
       const params = {
