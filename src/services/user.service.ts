@@ -317,9 +317,11 @@ export default class UserService {
 
     if (user?.document) {
       // idDoc
-      const fileManagementUrl = process.env.API_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod';
-      const response = await axios.get(`${fileManagementUrl}/api/v1/media/file-by-attach-code`, { params: { url: JSON.stringify(Object.values(user.document)) } });
-      fileNames = response.data.data.map((user: any) => user.file_name);
+      // const fileManagementUrl = process.env.API_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod';
+      // const response = await axios.get(`${fileManagementUrl}/api/v1/media/file-by-attach-code`, { params: { url: JSON.stringify(Object.values(user.document)) } });
+      // fileNames = response.data.data.map((user: any) => user.file_name);
+
+      Object.keys(user.document).map(e => fileNames.push(user.document[e]))
     }
 
     return { ...user, files: fileNames }
