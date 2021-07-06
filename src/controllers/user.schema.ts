@@ -408,3 +408,50 @@ export const documentStatusSchema: FastifySchema = {
     }
   }
 }
+
+export const userSummarySchema: FastifySchema = {
+  params: {
+    userId: { type: 'string' }
+  },
+  headers: {
+    type: 'object',
+    properties: {
+      authorization: { type: 'string' }
+    },
+    // require: ['authorization']
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        avatar: { type: 'object', properties: { object: { type: "string", nullable: true } } },
+        fullName: { type: 'string' },
+        phoneNumber: { type: 'string' },
+        totalJob: { type: 'number' },
+        trucks: { type: 'array' },
+        workingZones: { type: 'array' },
+      },
+      additionalProperties: false
+    }
+  }
+}
+
+export const userSummarySchemaWithoutAuthorize: FastifySchema = {
+  params: {
+    userId: { type: 'string' }
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        avatar: { type: 'object', properties: { object: { type: "string", nullable: true } } },
+        fullName: { type: 'string' },
+        phoneNumber: { type: 'string' },
+        totalJob: { type: 'number' },
+        trucks: { type: 'array' },
+        workingZones: { type: 'array' },
+      },
+      additionalProperties: false
+    }
+  }
+}

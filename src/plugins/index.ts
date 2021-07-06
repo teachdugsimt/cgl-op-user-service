@@ -9,7 +9,8 @@ import {
   VwUserRoleResource,
   TermOfService,
   TermOfServiceUser,
-  UserProfile
+  UserProfile,
+  VwUserJobSummary
 } from '../models';
 import * as fs from 'fs';
 import fp from 'fastify-plugin';
@@ -70,6 +71,7 @@ export default fp(async server => {
       termOfService: connection.getRepository(TermOfService),
       termOfServiceUser: connection.getRepository(TermOfServiceUser),
       userProfile: connection.getRepository(UserProfile),
+      vwUserSummary: connection.getRepository(VwUserJobSummary),
     });
   } catch (error) {
     console.log(error);

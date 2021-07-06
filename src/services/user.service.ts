@@ -7,7 +7,9 @@ import Utility from 'utility-layer/dist/security'
 import axios from 'axios';
 import { FindManyOptions, FindOperator, ILike, Like } from 'typeorm';
 import { UserProfileCreateEntity } from '../repositories/repository.types';
-
+import UserJobSummaryRepository from '../repositories/user-summary.repository'
+import _ from 'lodash'
+import e from 'cors';
 interface AddNormalUser {
   phoneNumber: string
   fullName?: string
@@ -359,7 +361,93 @@ export default class UserService {
     return updateProfile
   }
 
+
+  getReportMyTruck(listMyTrucks: { data: Array<ModelTruck> }) {
+    console.log("LIst mhy truck  : ", listMyTrucks)
+    let countTruckType = Object.values(listMyTrucks.data.reduce((r, { truckType }) => {
+      r[truckType] ??= { truckType, total: 0 };
+      r[truckType].total++;
+      return r;
+    }, {}));
+    console.log("Mapping Truck type :: ", countTruckType)
+    return countTruckType
+  }
+
+  getWorkingZone(listMyTrucks: { data: Array<ModelTruck> }) {
+    let arr: Array<{ region: number, province: number }> = []
+    listMyTrucks.data.map((e: ModelTruck) => {
+      const workZone = JSON.parse(JSON.stringify(e.workingZones)) || []
+      if (workZone && Array.isArray(workZone) && workZone.length > 0) {
+        arr = [...arr, ...workZone]
+      }
+    })
+    return _.uniqBy(arr, 'province');
+  }
+
+  async userAndTruckSummary(userId: number, authorization: string) {
+    const mainUrl = process.env.API_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod';
+    const listMyTrucks = await axios.get(`${mainUrl}/api/v1/trucks/me/all`, { headers: { Authorization: authorization } });
+    let mappingTruck = JSON.parse(JSON.stringify(listMyTrucks.data))
+
+    const reportMyTruck = this.getReportMyTruck(mappingTruck)
+    const reportWorkingZones = this.getWorkingZone(mappingTruck)
+    const repo = new UserJobSummaryRepository()
+    const myProfile = await repo.findOne(userId, {})
+
+    myProfile['trucks'] = reportMyTruck
+    myProfile['workingZones'] = reportWorkingZones
+
+    console.log("MyProfile : ", myProfile)
+
+    // return myProfile
+    return myProfile
+  }
+
+
+
+
+
+  async userAndTruckSummaryWithoutAuthorize(userId: number, encodeId: string, authorization: string) {
+    const mainUrl = process.env.API_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod';
+    const listMyTrucks = await axios.get(`${mainUrl}/api/v1/trucks/me/list-all/${encodeId}`, { headers: { authorization } });
+    let mappingTruck = JSON.parse(JSON.stringify(listMyTrucks.data))
+
+    const reportMyTruck = this.getReportMyTruck(mappingTruck)
+    // console.log("Map report truck : ",reportMyTruck)
+    const reportWorkingZones = this.getWorkingZone(mappingTruck)
+    // console.log("Report working :: ",reportWorkingZones)
+    const repo = new UserJobSummaryRepository()
+    const myProfile = await repo.findOne(userId, {})
+    console.log("My profile :: " + userId + " :", myProfile)
+    myProfile.trucks = reportMyTruck
+    myProfile.workingZones = reportWorkingZones
+
+    console.log("MyProfile : ", myProfile)
+
+    // return myProfile
+    return myProfile
+  }
+
   @Destructor()
   async destroy(): Promise<void> {
   }
+}
+
+export interface ModelTruck {
+  "id": string,
+  "approveStatus": string | null,
+  "loadingWeight": number | null,
+  "registrationNumber": string[],
+  "stallHeight": string | null,
+  "tipper": boolean,
+  "truckType": number,
+  "createdAt": string | null,
+  "updatedAt": string | null,
+  "quotationNumber": number | null,
+  "workingZones": Array<{ region: number | null, province: number | null }>
+}
+
+export interface ReportTrucks {
+  truckType: number
+  total: number
 }

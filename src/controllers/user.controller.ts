@@ -14,7 +14,8 @@ import {
   updateUserProfileResponse,
   logoutSchema,
   userStatusSchema,
-  documentStatusSchema
+  documentStatusSchema,
+  userSummarySchema, userSummarySchemaWithoutAuthorize
 } from './user.schema';
 import TermOfServiceUserService from '../services/term-of-service-user.service'
 import UserProfileRepository from '../repositories/user-profile.repository';
@@ -377,5 +378,49 @@ export default class UserController {
       throw new Error(err)
     }
   }
+
+  @GET({
+    url: '/:userId/profile-trucks',
+    options: {
+      schema: userSummarySchema
+    }
+  })
+  async getUserSummary(req: FastifyRequest<{ Params: { userId: string }, Headers: { authorization: string } }>, reply: FastifyReply): Promise<object> {
+    try {
+      const userId = req.params.userId;
+      const userIdFromToken = util.getUserIdByToken(req.headers.authorization);
+      console.log("user Id : ", userId)
+      console.log("Fromm token :: ", userIdFromToken)
+      let result: any
+      console.log("User ID decode :: ",util.decodeUserId(userId))
+      if (userId !== userIdFromToken) {
+         result = await this.userService.userAndTruckSummaryWithoutAuthorize(util.decodeUserId(userId), userId, req.headers.authorization);
+      } else {
+         result = await this.userService.userAndTruckSummary(util.decodeUserId(userId), req.headers.authorization);
+      }
+      return { ...result }
+    } catch (err) {
+      throw new Error(err)
+    }
+  }
+
+  // @GET({
+  //   url: '/:userId/profile-trucks-without-auth',
+  //   options: {
+  //     schema: userSummarySchemaWithoutAuthorize
+  //   }
+  // })
+  // async getUserSummaryWithOutAuthorize(req: FastifyRequest<{ Params: { userId: string } }>, reply: FastifyReply): Promise<object> {
+  //   try {
+  //     const userId = req.params.userId;
+  //     const parseUserId = util.decodeUserId(userId)
+  //     console.log("Raw id :: ", userId)
+  //     console.log("Parse id :: ", parseUserId)
+  //     const result = await this.userService.userAndTruckSummaryWithoutAuthorize(util.decodeUserId(userId), parseUserId);
+  //     return { ...result }
+  //   } catch (err) {
+  //     throw new Error(err)
+  //   }
+  // }
 
 }
