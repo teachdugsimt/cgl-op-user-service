@@ -301,16 +301,16 @@ export default class UserController {
         const repo = new UserDynamoRepository()
         const uploadTokenLink = await repo.findAttachCodeWithUser(decodeId)
         if (!uploadTokenLink || (typeof uploadTokenLink == "object" && Object.keys(uploadTokenLink).length == 0))
-          return { message: "Link was expired, please contact manager" }
+          reply.status(400).send({ message: "Link was expired, please contact manager" })
 
         if (uploadTokenLink && uploadTokenLink.token != req.body.token) {
-          return { message: "Link was expired, please contact manager" }
+          reply.status(400).send({ message: "Link was expired, please contact manager" })
         }
         console.log("Step 1 : upload link data : ", uploadTokenLink)
 
         // 2. call media/confirm
         if (Array.isArray(req.body.url) == false) {
-          return { message: "Invalid url format type" }
+          reply.status(400).send({ message: "Invalid url format type" })
         }
         const confirmResult = await this.updateUserProfileServ.confirmMedia(req.body.url)
 
@@ -324,7 +324,7 @@ export default class UserController {
           console.log("Step 3 : clear upload link : ", clearUploadLinkResult)
           return { message: "Update success" }
         } else {
-          return { message: "Invalid url entry" }
+          reply.status(400).send({ message: "Invalid url entry" })
         }
       }
     } catch (err) {
@@ -392,11 +392,11 @@ export default class UserController {
       console.log("user Id : ", userId)
       console.log("Fromm token :: ", userIdFromToken)
       let result: any
-      console.log("User ID decode :: ",util.decodeUserId(userId))
+      console.log("User ID decode :: ", util.decodeUserId(userId))
       if (userId !== userIdFromToken) {
-         result = await this.userService.userAndTruckSummaryWithoutAuthorize(util.decodeUserId(userId), userId, req.headers.authorization);
+        result = await this.userService.userAndTruckSummaryWithoutAuthorize(util.decodeUserId(userId), userId, req.headers.authorization);
       } else {
-         result = await this.userService.userAndTruckSummary(util.decodeUserId(userId), req.headers.authorization);
+        result = await this.userService.userAndTruckSummary(util.decodeUserId(userId), req.headers.authorization);
       }
       return { ...result }
     } catch (err) {
