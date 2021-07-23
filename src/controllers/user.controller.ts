@@ -150,7 +150,10 @@ export default class UserController {
       schema: updateUserOwnerSchema
     }
   })
-  async UpdateUsersOwner(req: FastifyRequest<{ Headers: { authorization: string }, Body: { userId: string, fullName?: string, phoneNumber?: string, email?: string } }>, reply: FastifyReply): Promise<object> {
+  async UpdateUsersOwner(req: FastifyRequest<{
+    Headers: { authorization: string },
+    Body: { userId: string, fullName?: string, phoneNumber?: string, email?: string, avatar?: string }
+  }>, reply: FastifyReply): Promise<object> {
     try {
       const userId = req.body.userId
       const userIdFromToken = util.getUserIdByToken(req.headers.authorization);
@@ -190,7 +193,7 @@ export default class UserController {
   })
   async UpdateUserByUserId(req: FastifyRequest<{
     Params: { userId: string },
-    Body: { fullName?: string, phoneNumber?: string, email?: string, url?: string[], legalType?: 'INDIVIDUAL' | 'JURISTIC' }
+    Body: { fullName?: string, phoneNumber?: string, email?: string, url?: string[], legalType?: 'INDIVIDUAL' | 'JURISTIC', avatar?: string }
   }>, reply: FastifyReply): Promise<object> {
     try {
       const params = {

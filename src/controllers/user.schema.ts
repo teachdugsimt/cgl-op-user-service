@@ -103,6 +103,7 @@ export const updateUserOwnerSchema: FastifySchema = {
       fullName: { type: 'string' },
       phoneNumber: { type: 'string' },
       email: { type: 'string' },
+      avatar: { type: 'string' },
     }
   },
   response: {
@@ -179,6 +180,7 @@ export const updateUserByUserIdSchema: FastifySchema = {
       fullName: { type: 'string' },
       phoneNumber: { type: 'string' },
       email: { type: 'string' },
+      avatar: { type: 'string' },
       legalType: {
         type: 'string',
         enum: ['INDIVIDUAL', 'JURISTIC']
