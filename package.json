@@ -1,6 +1,6 @@
 {
   "name": "cgl-op-authentication",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "",
   "main": "dist/server.js",
   "scripts": {
@@ -34,12 +34,16 @@
     "fastify-cors": "^6.0.1",
     "fastify-decorators": "^3.9.1",
     "fastify-plugin": "^3.0.0",
+    "fastify-status": "^2.2.1",
     "fastify-swagger": "^4.7.0",
     "hashids": "^2.2.8",
     "jsonwebtoken": "^8.5.1",
     "pg": "^8.6.0",
     "pino-pretty": "^4.7.1",
+    "pkg-dir": "^5.0.0",
+    "pretty-ms": "^7.0.1",
     "typeorm": "^0.2.32",
+    "under-pressure": "^5.7.0",
     "utility-layer": "git+https://git-codecommit.ap-southeast-1.amazonaws.com/v1/repos/utility-layer"
   },
   "devDependencies": {
