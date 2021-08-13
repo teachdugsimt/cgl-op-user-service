@@ -36,15 +36,15 @@ function build(opts: object = configApp) {
     mask: /\.controller\./,
   });
 
-  app.register(require('under-pressure'), {
-    maxEventLoopDelay: 1000,
-    exposeStatusRoute: {
-      routeResponseSchemaOpts: routeResponseSchemaOpts,
-      url: '/api/v1/users/__alive__'
-    },
-    healthCheck: healthCheck,
-    healthCheckInterval: 720e3,
-  })
+  // app.register(require('under-pressure'), {
+  //   maxEventLoopDelay: 1000,
+  //   exposeStatusRoute: {
+  //     routeResponseSchemaOpts: routeResponseSchemaOpts,
+  //     url: '/api/v1/users/__alive__'
+  //   },
+  //   healthCheck: healthCheck,
+  //   healthCheckInterval: 720e3,
+  // })
 
   return app
 }

@@ -68,7 +68,8 @@ export default class AuthenticationController {
 
       const smsMessage = `${refCode} - The verifcation code is ${otpCode}`;
 
-      await this.authenService.sendSMS(username, smsMessage);
+      const smsResult = await this.authenService.sendSMS(username, smsMessage);
+      console.log(smsResult)
       await otpRepository.create(variantSecurity, 90);
 
       return {
