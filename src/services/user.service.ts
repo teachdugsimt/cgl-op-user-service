@@ -50,6 +50,7 @@ interface UpdateUserProfile {
   legalType?: 'INDIVIDUAL' | 'JURISTIC'
   url?: string[]
   avatar?: string
+  userType?: number
 }
 
 enum UserStatus {
@@ -263,7 +264,7 @@ export default class UserService {
   }
 
   async updateUserProfile(params: UpdateUserProfile): Promise<any> {
-    const { userId, fullName, email, phoneNumber, url, legalType, avatar } = params;
+    const { userId, fullName, email, phoneNumber, url, legalType, avatar, userType } = params;
     let data: UserProfileCreateEntity = {}
 
     if (phoneNumber) {
@@ -281,6 +282,7 @@ export default class UserService {
       ...(email ? { email: email } : undefined),
       ...(legalType ? { legalType: legalType } : undefined),
       ...(avatar ? { avatar: avatar } : undefined),
+      ...(userType ? { userType: userType } : undefined),
       updatedAt: new Date(),
     }
 

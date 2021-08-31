@@ -152,7 +152,7 @@ export default class UserController {
   })
   async UpdateUsersOwner(req: FastifyRequest<{
     Headers: { authorization: string },
-    Body: { userId: string, fullName?: string, phoneNumber?: string, email?: string, avatar?: string }
+    Body: { userId: string, fullName?: string, phoneNumber?: string, email?: string, avatar?: string, userType?: number }
   }>, reply: FastifyReply): Promise<object> {
     try {
       const userId = req.body.userId

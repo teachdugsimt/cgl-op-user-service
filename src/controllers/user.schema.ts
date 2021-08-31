@@ -104,6 +104,7 @@ export const updateUserOwnerSchema: FastifySchema = {
       phoneNumber: { type: 'string' },
       email: { type: 'string' },
       avatar: { type: 'string' },
+      userType: { type: 'number' },
     }
   },
   response: {
