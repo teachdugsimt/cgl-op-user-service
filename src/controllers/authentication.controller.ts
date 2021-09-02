@@ -105,6 +105,7 @@ export default class AuthenticationController {
         console.log('userInformation :>> ', userInformation);
         if (userInformation) {
           const userProfile = await this.authenService.getUserProfile({ phoneNumber: username });
+          console.log("User profile controller :: ", userProfile)
           const termOfService = this.termOfServiceUserService.getTermOfServiceByUser(+userProfile.id);
           const password: any = await utility.decryptByKms(userInformation.password)
           console.log('password :>> ', password);
