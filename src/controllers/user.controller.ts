@@ -304,16 +304,16 @@ export default class UserController {
         const repo = new UserDynamoRepository()
         const uploadTokenLink = await repo.findAttachCodeWithUser(decodeId)
         if (!uploadTokenLink || (typeof uploadTokenLink == "object" && Object.keys(uploadTokenLink).length == 0))
-          reply.status(400).send({ message: "Link was expired, please contact manager" })
+          reply.status(401).send({ message: "Link was expired, please contact system administrator" })
 
         if (uploadTokenLink && uploadTokenLink.token != req.body.token) {
-          reply.status(400).send({ message: "Link was expired, please contact manager" })
+          reply.status(401).send({ message: "Link was expired, please contact system administrator" })
         }
         console.log("Step 1 : upload link data : ", uploadTokenLink)
 
         // 2. call media/confirm
         if (Array.isArray(req.body.url) == false) {
-          reply.status(400).send({ message: "Invalid url format type" })
+          reply.status(401).send({ message: "Invalid url format type" })
         }
         const confirmResult = await this.updateUserProfileServ.confirmMedia(req.body.url)
 
@@ -327,7 +327,7 @@ export default class UserController {
           console.log("Step 3 : clear upload link : ", clearUploadLinkResult)
           return { message: "Update success" }
         } else {
-          reply.status(400).send({ message: "Invalid url entry" })
+          reply.status(401).send({ message: "Invalid url entry" })
         }
       }
     } catch (err) {
