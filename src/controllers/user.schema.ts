@@ -69,7 +69,7 @@ export const getUserOwnerSchema: FastifySchema = {
         fullName: { type: 'string' },
         phoneNumber: { type: 'string' },
         email: { type: 'string' },
-        userType: { type: 'number' },
+        userType: { type: 'string' },
         enabled: { type: 'boolean' },
         avatar: { type: 'string' },
         deviceToken: { type: 'string' },
@@ -81,7 +81,9 @@ export const getUserOwnerSchema: FastifySchema = {
         status: { type: 'string' },
         documentStatus: { type: 'string' },
         legalType: { type: 'string' },
-        files: { type: 'array', items: { type: 'string' } }
+        files: { type: 'array', items: { type: 'string' } },
+        attachCodeCitizenId: { type: 'string' },
+        roleName: { type: 'array', items: { type: 'string' } },
       },
       additionalProperties: false
     }
@@ -104,7 +106,22 @@ export const updateUserOwnerSchema: FastifySchema = {
       phoneNumber: { type: 'string' },
       email: { type: 'string' },
       avatar: { type: 'string' },
-      userType: { type: 'number' },
+      userType: {
+        type: 'string',
+        enum: ['SHIPPER', 'CARRIER', 'BOTH']
+      },
+      legalType: {
+        type: 'string',
+        enum: ['INDIVIDUAL', 'JURISTIC']
+      },
+      url: {
+        type: 'array',
+        items: {
+          type: 'string'
+        }
+      },
+      attachCodeCitizenId: { type: 'string' },
+      acceptTermAndCondition: { type: 'string' },
     }
   },
   response: {
@@ -116,7 +133,7 @@ export const updateUserOwnerSchema: FastifySchema = {
         fullName: { type: 'string' },
         phoneNumber: { type: 'string' },
         email: { type: 'string' },
-        userType: { type: 'number' },
+        userType: { type: 'string' },
         enabled: { type: 'boolean' },
         avatar: { type: 'string' },
         deviceToken: { type: 'string' },
@@ -125,7 +142,9 @@ export const updateUserOwnerSchema: FastifySchema = {
         createdBy: { type: 'string' },
         updatedBy: { type: 'string' },
         userId: { type: 'string' },
-        files: { type: 'array', items: { type: 'string' } }
+        files: { type: 'array', items: { type: 'string' } },
+        attachCodeCitizenId: { type: 'string' },
+        documentStatus: { type: 'string' },
       },
       additionalProperties: false
     }
@@ -145,7 +164,7 @@ export const getUserByUserIdSchema: FastifySchema = {
         fullName: { type: 'string' },
         phoneNumber: { type: 'string' },
         email: { type: 'string' },
-        userType: { type: 'number' },
+        userType: { type: 'string' },
         enabled: { type: 'boolean' },
         avatar: { type: 'string' },
         deviceToken: { type: 'string' },
@@ -157,7 +176,9 @@ export const getUserByUserIdSchema: FastifySchema = {
         status: { type: 'string' },
         documentStatus: { type: 'string' },
         legalType: { type: 'string' },
-        files: { type: 'array', items: { type: 'string' } }
+        files: { type: 'array', items: { type: 'string' } },
+        attachCodeCitizenId: { type: 'string' },
+        roleName: { type: 'array', items: { type: 'string' } },
       },
       additionalProperties: false
     }
@@ -186,12 +207,18 @@ export const updateUserByUserIdSchema: FastifySchema = {
         type: 'string',
         enum: ['INDIVIDUAL', 'JURISTIC']
       },
+      userType: {
+        type: 'string',
+        enum: ['SHIPPER', 'CARRIER', 'BOTH']
+      },
       url: {
         type: 'array',
         items: {
           type: 'string'
         }
-      }
+      },
+      attachCodeCitizenId: { type: 'string' },
+      acceptTermAndCondition: { type: 'string' },
     }
   },
   response: {
@@ -203,7 +230,7 @@ export const updateUserByUserIdSchema: FastifySchema = {
         fullName: { type: 'string' },
         phoneNumber: { type: 'string' },
         email: { type: 'string' },
-        userType: { type: 'number' },
+        userType: { type: 'string' },
         enabled: { type: 'boolean' },
         avatar: { type: 'string' },
         deviceToken: { type: 'string' },
@@ -212,7 +239,9 @@ export const updateUserByUserIdSchema: FastifySchema = {
         createdBy: { type: 'string' },
         updatedBy: { type: 'string' },
         userId: { type: 'string' },
-        files: { type: 'array', items: { type: 'string' } }
+        files: { type: 'array', items: { type: 'string' } },
+        attachCodeCitizenId: { type: 'string' },
+        documentStatus: { type: 'string' },
       },
       additionalProperties: false
     }
@@ -233,7 +262,10 @@ export const addUserSchema: FastifySchema = {
       fullName: { type: 'string' },
       phoneNumber: { type: 'string' },
       email: { type: 'string' },
-      userType: { type: 'number' },
+      userType: {
+        type: 'string',
+        enum: ['SHIPPER', 'CARRIER', 'BOTH']
+      },
       legalType: {
         type: 'string',
         enum: ['INDIVIDUAL', 'JURISTIC']
@@ -256,7 +288,7 @@ export const addUserSchema: FastifySchema = {
         fullName: { type: 'string' },
         phoneNumber: { type: 'string' },
         email: { type: 'string' },
-        userType: { type: 'number' },
+        userType: { type: 'string' },
         legalType: { type: 'string' },
         document: {
           type: 'object',
@@ -443,6 +475,12 @@ export const userSummarySchemaWithoutAuthorize: FastifySchema = {
   params: {
     userId: { type: 'string' }
   },
+  headers: {
+    type: 'object',
+    properties: {
+      authorization: { type: 'string' }
+    },
+  },
   response: {
     200: {
       type: 'object',
@@ -455,6 +493,50 @@ export const userSummarySchemaWithoutAuthorize: FastifySchema = {
         workingZones: { type: 'array' },
       },
       additionalProperties: false
+    }
+  }
+}
+
+export const termOfServicePartnerSchema: FastifySchema = {
+  params: {
+    userId: { type: 'string' }
+  },
+  headers: {
+    type: 'object',
+    properties: {
+      authorization: { type: 'string' }
+    },
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        message: { type: 'string' },
+        version: { type: 'string' },
+        accepted: { type: 'boolean' },
+        data: { type: 'string' },
+      },
+      additionalProperties: false
+    }
+  }
+}
+
+export const addTermOfServiceSchema: FastifySchema = {
+  body: {
+    type: 'object',
+    properties: {
+      accept: { type: 'boolean' },
+      version: { type: 'string' }
+    }
+  },
+  params: {
+    userId: { type: 'string' }
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {},
+      additionalProperties: true
     }
   }
 }

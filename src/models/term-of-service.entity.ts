@@ -54,4 +54,12 @@ export class TermOfService {
 
   @Column("boolean", { name: "is_deleted", default: () => "false" })
   isDeleted!: boolean;
+
+  @Column("character varying", {
+    name: "type",
+    nullable: true,
+    length: 20,
+    default: () => "NULL::character varying",
+  })
+  type!: string | null;
 }

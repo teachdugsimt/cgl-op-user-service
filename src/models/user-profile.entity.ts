@@ -35,8 +35,11 @@ export class UserProfile {
   @Column("boolean", { name: "enabled", nullable: true, default: () => "true" })
   enabled!: boolean | null;
 
-  @Column("smallint", { name: "user_type", nullable: true })
-  userType!: number | null;
+  @Column("enum", {
+    name: "user_type",
+    enum: ["SHIPPER", "CARRIER", "BOTH"],
+  })
+  userType!: "SHIPPER" | "CARRIER" | "BOTH";
 
   @Column("character varying", { name: "avatar", nullable: true, length: 255 })
   avatar!: string | null;
@@ -97,6 +100,13 @@ export class UserProfile {
     default: () => "'INDIVIDUAL'",
   })
   legalType!: 'INDIVIDUAL' | 'JURISTIC';
+
+  @Column("character varying", {
+    name: "attach_code_citizen_id",
+    nullable: true,
+    length: 255,
+  })
+  attachCodeCitizenId!: string | null;
 
   @Column("jsonb", { name: "document", nullable: true })
   document!: object | null;

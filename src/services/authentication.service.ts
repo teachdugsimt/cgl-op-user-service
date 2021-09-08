@@ -107,7 +107,7 @@ export default class AuthenticationService {
       const userDynamo = await userDynamoRepository.create(userAttribute);
       console.log('userDynamo :>> ', userDynamo);
       return userData;
-    } catch (err) {
+    } catch (err: any) {
       console.log('err :>> ', err);
       const errorMessage: any = { code: 'CREATE_USER_ERROR', message: 'Cannot create user' }
       throw errorMessage
@@ -156,7 +156,7 @@ export default class AuthenticationService {
 
   async getUserProfile(filter: FilterUserProfile): Promise<any> {
     const options = {
-      select: ['id', 'fullName', 'phoneNumber', 'email', 'userType', 'avatar']
+      select: ['id', 'fullName', 'phoneNumber', 'email', 'userType', 'avatar', 'attachCodeCitizenId', 'documentStatus']
     }
     const userProfile = await userRepository.findOneByAttribute(filter, options);
     console.log("User Profile service :: ", userProfile)
@@ -168,7 +168,9 @@ export default class AuthenticationService {
       mobileNo: userProfile.phoneNumber,
       email: userProfile.email,
       userType: userProfile.userType,
-      avatar: userProfile.avatar
+      avatar: userProfile.avatar,
+      attachCodeCitizenId: userProfile.attachCodeCitizenId,
+      documentStatus: userProfile.documentStatus,
     }
   }
 

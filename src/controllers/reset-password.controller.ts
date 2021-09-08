@@ -52,7 +52,7 @@ export default class ResetPasswordController {
           statusCode: 400,
           message: 'TOKEN_DOES_NOT_EXIST'
         });
-    } catch (err) {
+    } catch (err: any) {
       console.log('err :>> ', err);
       throw new Error(err)
     }
@@ -111,7 +111,7 @@ export default class ResetPasswordController {
           message: 'REQUEST_FAILURE',
           alreadySent: false
         });
-    } catch (err) {
+    } catch (err: any) {
       console.log('err :>> ', err);
       throw err;
     }
@@ -159,7 +159,7 @@ export default class ResetPasswordController {
           statusCode: 400,
           message: 'PASSWORD_DO_NOT_MATCH',
         });
-    } catch (err) {
+    } catch (err: any) {
       console.log('err :>> ', err);
       throw err;
     }

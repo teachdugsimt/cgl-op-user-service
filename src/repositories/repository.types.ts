@@ -28,7 +28,7 @@ export interface UserDataCreateEntity {
 
   transactionAddress?: string;
 
-  userType?: number;
+  userType?: string;
 
   typeCargo?: string;
 
@@ -174,7 +174,7 @@ export interface TermOfServiceUserAddEntity {
 
   userId: number
 
-  version: string
+  version: number
 
   createdAt?: Date
 
@@ -200,7 +200,7 @@ export interface UserProfileCreateEntity {
 
   enabled?: boolean;
 
-  userType?: number;
+  userType?: 'SHIPPER' | 'CARRIER' | 'BOTH';
 
   avatar?: string;
 

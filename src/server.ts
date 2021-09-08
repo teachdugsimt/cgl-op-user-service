@@ -9,7 +9,7 @@ if (require.main === module) {
     try {
       await server.listen(3000)
       server.blipp()
-    } catch (err) {
+    } catch (err: any) {
       server.log.error(err)
       process.exit(1)
     }

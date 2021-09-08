@@ -34,9 +34,39 @@ export const otpVerifySchema: FastifySchema = {
     200: {
       type: 'object',
       properties: {
-        idToken: { type: 'string' },
-        accessToken: { type: 'string' },
-        refreshToken: { type: 'string' },
+        message: { type: 'string' },
+        responseCode: { type: 'number' },
+        userProfile: {
+          type: 'object',
+          properties: {
+            id: { type: 'number' },
+            userId: { type: 'string' },
+            companyName: { type: 'string' },
+            fullName: { type: 'string' },
+            mobileNo: { type: 'string' },
+            email: { type: 'string' },
+            userType: { type: 'string' },
+            avatar: { type: 'string' },
+            attachCodeCitizenId: { type: 'string' },
+            documentStatus: { type: 'string' },
+          }
+        },
+        token: {
+          type: 'object',
+          properties: {
+            idToken: { type: 'string' },
+            accessToken: { type: 'string' },
+            refreshToken: { type: 'string' },
+          }
+        },
+        termOfService: {
+          type: 'object',
+          properties: {
+            version: { type: 'string' },
+            accepted: { type: 'boolean' },
+            data: { type: 'string' }
+          }
+        }
       },
       additionalProperties: true
     }

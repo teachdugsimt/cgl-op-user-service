@@ -14,12 +14,6 @@ const otpRepository = new OtpRepository();
 const userDynamoRepository = new UserDynamodbRepository();
 const utility = new Utility();
 
-interface OtpRequestParams {
-  countryCode: string,
-  phoneNumber: string,
-  userType: number
-}
-
 enum UserStatus {
   ACTIVE = 'ACTIVE'
 }
@@ -77,7 +71,7 @@ export default class AuthenticationController {
         // otp: otpCode,
       }
 
-    } catch (err) {
+    } catch (err: any) {
       console.log('err :>> ', err);
       throw {
         statusCode: err?.statusCode || 400,
@@ -126,7 +120,7 @@ export default class AuthenticationController {
         responseCode: '200',
         message: 'OTP is invalid or expire'
       }
-    } catch (err) {
+    } catch (err: any) {
       throw new Error(err)
     }
   }
@@ -168,7 +162,7 @@ export default class AuthenticationController {
         code: 'NotAuthorizedException',
         message: 'Incorrect username or password.',
       }
-    } catch (err) {
+    } catch (err: any) {
       if (err?.code === 'NotAuthorizedException') {
         throw {
           statusCode: 400,
@@ -195,7 +189,7 @@ export default class AuthenticationController {
         idToken: tokens?.idToken,
         accessToken: tokens?.accessToken,
       };
-    } catch (err) {
+    } catch (err: any) {
       throw new Error(err)
     }
   }

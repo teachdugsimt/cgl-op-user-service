@@ -8,13 +8,14 @@ import axios from 'axios';
 import { FindManyOptions, FindOperator, ILike, Like } from 'typeorm';
 import { UserProfileCreateEntity } from '../repositories/repository.types';
 import UserJobSummaryRepository from '../repositories/user-summary.repository'
+import TermOfServiceUserService from './term-of-service-user.service';
 import _ from 'lodash'
 import e from 'cors';
 interface AddNormalUser {
   phoneNumber: string
   fullName?: string
   email?: string
-  userType?: number
+  userType?: 'SHIPPER' | 'CARRIER' | 'BOTH'
   createdAt?: Date
   createdBy?: string
   confirmationToken?: string
@@ -50,8 +51,12 @@ interface UpdateUserProfile {
   legalType?: 'INDIVIDUAL' | 'JURISTIC'
   url?: string[]
   avatar?: string
-  userType?: number
+  userType?: 'SHIPPER' | 'CARRIER' | 'BOTH'
+  attachCodeCitizenId?: string
+  acceptTermAndCondition?: string
 }
+
+type UserDocumentStatus = "NO_DOCUMENT" | "WAIT_FOR_VERIFIED" | "VERIFIED" | "REJECTED";
 
 enum UserStatus {
   ACTIVE = 'ACTIVE'
@@ -67,6 +72,7 @@ const userDynamoRepository = new UserDynamodbRepository();
 const userProfileRepository = new UserProfileRepository();
 const userRoleService = new UserRoleService();
 const utility = new Utility();
+const termOfServiceUserService = new TermOfServiceUserService();
 
 const UserPoolId = process.env.USER_POOL_ID || '';
 
@@ -133,7 +139,7 @@ export default class UserService {
       }
       const userData = await userProfileRepository.add({
         ...data,
-        ...(data?.url?.length ? { document: { idDoc: data.url[0] } } : undefined)
+        ...(data?.url?.length ? { document: JSON.parse(JSON.stringify(Object.assign({}, data.url))) } : undefined)
       });
       console.log('userData :>> ', userData);
       const password = utility.generatePassword(12);
@@ -159,7 +165,7 @@ export default class UserService {
         ...userData,
         userId: utility.encodeUserId(userData.id)
       };
-    } catch (err) {
+    } catch (err: any) {
       console.log('err :>> ', JSON.stringify(err));
       // const errorMessage: any = { code: 'CREATE_USER_ERROR', message: 'Cannot create user' }
       throw err;
@@ -260,11 +266,14 @@ export default class UserService {
 
   async updateUserDocumentStatus(userId: string, status: 'NO_DOCUMENT' | 'WAIT_FOR_VERIFIED' | 'VERIFIED' | 'REJECTED'): Promise<any> {
     const id = utility.decodeUserId(userId);
+    if (status === 'VERIFIED') {
+      await userRoleService.updateRoleMemberToPartner(id);
+    }
     return userProfileRepository.update(id, { documentStatus: status });
   }
 
   async updateUserProfile(params: UpdateUserProfile): Promise<any> {
-    const { userId, fullName, email, phoneNumber, url, legalType, avatar, userType } = params;
+    const { userId, fullName, email, phoneNumber, url, legalType, avatar, userType, attachCodeCitizenId, acceptTermAndCondition } = params;
     let data: UserProfileCreateEntity = {}
 
     if (phoneNumber) {
@@ -283,10 +292,16 @@ export default class UserService {
       ...(legalType ? { legalType: legalType } : undefined),
       ...(avatar ? { avatar: avatar } : undefined),
       ...(userType ? { userType: userType } : undefined),
+      ...(attachCodeCitizenId ? { attachCodeCitizenId } : undefined),
       updatedAt: new Date(),
     }
 
     try {
+      let acceptTermAndConditionResult: any
+      if (acceptTermAndCondition) {
+        acceptTermAndConditionResult = termOfServiceUserService.acceptTermOrServicePartner(userId, acceptTermAndCondition);
+      }
+
       const userDetailBackup = await userProfileRepository.findOne(id);
       const isAdminOrCustomerService = await userRoleService.isBackofficeUser(id);
 
@@ -301,13 +316,16 @@ export default class UserService {
       }
 
       if (url?.length) {
-        data = { ...data, document: { idDoc: url[0] }, documentStatus: 'WAIT_FOR_VERIFIED' };
+        const arrDocument = userDetailBackup?.document ? Object.values(userDetailBackup.document) : [];
+        const newArrDocument = [...arrDocument, ...url]
+        data = { ...data, document: JSON.parse(JSON.stringify(Object.assign({}, newArrDocument))), documentStatus: 'WAIT_FOR_VERIFIED' };
         const fileManagementUrl = process.env.API_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod';
         await axios.post(`${fileManagementUrl}/api/v1/media/confirm`, { url: url });
       }
+      await acceptTermAndConditionResult;
 
       return userProfileRepository.update(id, data);
-    } catch (err) {
+    } catch (err: any) {
       console.log('err :>> ', err);
       // delete userDetailBackup.id
       // await userProfileRepository.update(id, userDetailBackup);
@@ -318,6 +336,7 @@ export default class UserService {
   async getProfileByUserId(userId: string): Promise<any> {
     const id = utility.decodeUserId(userId);
 
+    const roleName = userRoleService.getRoleNameByUserId(id);
     const user = await userProfileRepository.findOne(id);
     let fileNames: Array<string> = []
 
@@ -330,7 +349,7 @@ export default class UserService {
       Object.keys(user.document).map(e => fileNames.push(user.document[e]))
     }
 
-    return { ...user, files: fileNames }
+    return { ...user, files: fileNames, roleName: await roleName }
   }
 
   async checkUserActive(username: string): Promise<boolean> {
@@ -430,6 +449,24 @@ export default class UserService {
 
     // return myProfile
     return myProfile
+  }
+
+  async getDocumentStatus(userId: number): Promise<any> {
+    const user = await userProfileRepository.findOne(userId);
+    if (user) {
+      return user.documentStatus;
+    }
+    throw new Error('USER_DOES_NOT_EXISTS');
+  }
+
+  mappingMessageByDocumentStatus(documentStatus: UserDocumentStatus): string | null {
+    if (documentStatus === 'WAIT_FOR_VERIFIED') {
+      return 'Wait for approval'
+    } else if (documentStatus === 'VERIFIED') {
+      return 'Your account has been verified.'
+    } else {
+      return null;
+    }
   }
 
   @Destructor()

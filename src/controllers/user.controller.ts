@@ -15,9 +15,10 @@ import {
   logoutSchema,
   userStatusSchema,
   documentStatusSchema,
-  userSummarySchema, userSummarySchemaWithoutAuthorize
+  userSummarySchema, userSummarySchemaWithoutAuthorize, termOfServicePartnerSchema, addTermOfServiceSchema
 } from './user.schema';
 import TermOfServiceUserService from '../services/term-of-service-user.service'
+import TermOfServiceService from '../services/term-of-service.service'
 import UserProfileRepository from '../repositories/user-profile.repository';
 import UserDynamoRepository from '../repositories/user.dynamodb.repository'
 import Utility from 'utility-layer/dist/security'
@@ -38,6 +39,7 @@ export default class UserController {
   private userService = getInstanceByToken<UserService>(UserService);
   private termOfServiceUserService = getInstanceByToken<TermOfServiceUserService>(TermOfServiceUserService);
   private updateUserProfileServ = getInstanceByToken<UpdateUserProfileService>(UpdateUserProfileService);
+  private termOfServiceService = getInstanceByToken<TermOfServiceService>(TermOfServiceService);
 
   // @ValidateParam(termOfServiceSchema)
   @POST({
@@ -54,7 +56,7 @@ export default class UserController {
         return await this.termOfServiceUserService.acceptTermOrService(userId, version);
       }
       return {}
-    } catch (err) {
+    } catch (err: any) {
       throw new Error(err)
     }
   }
@@ -68,7 +70,7 @@ export default class UserController {
   })
   async AddUser(req: FastifyRequest<{
     Headers: { authorization: string },
-    Body: { fullName: string, phoneNumber: string, email?: string, userType?: number, legalType?: 'INDIVIDUAL' | 'JURISTIC', url?: string[] }
+    Body: { fullName: string, phoneNumber: string, email?: string, userType?: 'SHIPPER' | 'CARRIER' | 'BOTH', legalType?: 'INDIVIDUAL' | 'JURISTIC', url?: string[] }
   }>, reply: FastifyReply): Promise<object> {
     try {
       const token = req.headers.authorization
@@ -84,7 +86,7 @@ export default class UserController {
       }
 
       return await this.userService.createNormalUser(data);
-    } catch (err) {
+    } catch (err: any) {
       console.log('err :>> ', err);
       reply.status(400);
       throw err
@@ -120,7 +122,7 @@ export default class UserController {
         totalElements: users.count,
         numberOfElements: users.data.length ?? 0,
       }
-    } catch (err) {
+    } catch (err: any) {
       throw new Error(err)
     }
   }
@@ -139,7 +141,7 @@ export default class UserController {
         return reply.status(401).send({ statusCode: 401, error: 'Unauthorized', message: 'User id does not match' });
       }
       return await this.userService.getProfileByUserId(userId);
-    } catch (err) {
+    } catch (err: any) {
       throw new Error(err)
     }
   }
@@ -152,7 +154,7 @@ export default class UserController {
   })
   async UpdateUsersOwner(req: FastifyRequest<{
     Headers: { authorization: string },
-    Body: { userId: string, fullName?: string, phoneNumber?: string, email?: string, avatar?: string, userType?: number }
+    Body: { userId: string, fullName?: string, phoneNumber?: string, email?: string, avatar?: string, userType?: 'SHIPPER' | 'CARRIER' | 'BOTH' }
   }>, reply: FastifyReply): Promise<object> {
     try {
       const userId = req.body.userId
@@ -163,7 +165,7 @@ export default class UserController {
       }
 
       return await this.userService.updateUserProfile(req.body);
-    } catch (err) {
+    } catch (err: any) {
       throw new Error(err)
     }
   }
@@ -179,7 +181,7 @@ export default class UserController {
     try {
       const { userId } = req.params
       return await this.userService.getProfileByUserId(userId);
-    } catch (err) {
+    } catch (err: any) {
       throw new Error(err)
     }
   }
@@ -201,7 +203,7 @@ export default class UserController {
         ...req.body
       }
       return await this.userService.updateUserProfile(params);
-    } catch (err) {
+    } catch (err: any) {
       throw new Error(err)
     }
   }
@@ -220,7 +222,7 @@ export default class UserController {
       // await userDynamoRepository.delete(userData.phoneNumber);
       await userProfileRepository.update(id, { status: 'INACTIVE' });
       return reply.status(202).send();
-    } catch (err) {
+    } catch (err: any) {
       throw new Error(err)
     }
   }
@@ -262,7 +264,7 @@ export default class UserController {
           return { url: link, userId: req.params.userId }
         else return { url: null, userId: req.params.userId }
       }
-    } catch (err) {
+    } catch (err: any) {
       throw new Error(err)
     }
   }
@@ -284,7 +286,7 @@ export default class UserController {
           return { data: true }
         else return { data: false }
       }
-    } catch (err) {
+    } catch (err: any) {
       throw new Error(err)
     }
   }
@@ -330,7 +332,7 @@ export default class UserController {
           reply.status(401).send({ message: "Invalid url entry" })
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       throw new Error(err)
     }
   }
@@ -344,7 +346,7 @@ export default class UserController {
   async Logout(req: FastifyRequest<{ Body: { token: string } }>, reply: FastifyReply): Promise<any> {
     try {
       return await this.userService.signOut(req.body.token);
-    } catch (err) {
+    } catch (err: any) {
       console.log('err :>> ', err);
       throw new Error(err)
     }
@@ -360,7 +362,7 @@ export default class UserController {
     try {
       await this.userService.updateUserStatus(req.params.userId, req.body.status);
       return reply.status(204).send();
-    } catch (err) {
+    } catch (err: any) {
       console.log('err :>> ', err);
       throw new Error(err)
     }
@@ -376,7 +378,7 @@ export default class UserController {
     try {
       await this.userService.updateUserDocumentStatus(req.params.userId, req.body.status);
       return reply.status(204).send();
-    } catch (err) {
+    } catch (err: any) {
       console.log('err :>> ', err);
       throw new Error(err)
     }
@@ -402,7 +404,7 @@ export default class UserController {
         result = await this.userService.userAndTruckSummary(util.decodeUserId(userId), req.headers.authorization);
       }
       return { ...result }
-    } catch (err) {
+    } catch (err: any) {
       throw new Error(err)
     }
   }
@@ -421,9 +423,62 @@ export default class UserController {
   //     console.log("Parse id :: ", parseUserId)
   //     const result = await this.userService.userAndTruckSummaryWithoutAuthorize(util.decodeUserId(userId), parseUserId);
   //     return { ...result }
-  //   } catch (err) {
+  //   } catch (err: any) {
   //     throw new Error(err)
   //   }
   // }
+
+  @GET({
+    url: '/:userId/term-of-service-partner',
+    options: {
+      schema: termOfServicePartnerSchema
+    }
+  })
+  async getTermOfServicePartner(req: FastifyRequest<{ Params: { userId: string } }>, reply: FastifyReply): Promise<object> {
+    try {
+      const userId = util.decodeUserId(req.params.userId)
+      const userDoc = await this.userService.getDocumentStatus(userId);
+      const message = this.userService.mappingMessageByDocumentStatus(userDoc);
+      if (message) {
+        return {
+          message,
+          version: '',
+          accepted: true,
+          data: ''
+        }
+      }
+      const termOfService = await this.termOfServiceService.getTermOfServicePartnerLastVersion();
+      return {
+        message: '',
+        version: termOfService.versionNumber,
+        accepted: false,
+        data: termOfService.data
+      }
+    } catch (err: any) {
+      if (err.name === 'USER_DOES_NOT_EXISTS') {
+        return reply.status(404).send({ message: 'User does not exists' })
+      }
+      throw new Error(err)
+    }
+  }
+
+  @POST({
+    url: '/:userId/term-of-service-partner',
+    options: {
+      schema: addTermOfServiceSchema
+    }
+  })
+  async addTermOfServicePartner(req: FastifyRequest<{ Body: { accept: boolean, version: string }, Params: { userId: string } }>, reply: FastifyReply): Promise<object> {
+    try {
+      const { accept, version } = req.body
+      if (accept) {
+        const userId: string = req.params.userId
+        return await this.termOfServiceUserService.acceptTermOrServicePartner(userId, version);
+      }
+      return {}
+    } catch (err: any) {
+      throw new Error(err)
+    }
+  }
 
 }
