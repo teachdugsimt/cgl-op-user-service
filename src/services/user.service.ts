@@ -116,6 +116,31 @@ const updateUsername = async (oldUsername: string, newUsername: string, updateTo
   return cognitoidentityserviceprovider.adminUpdateUserAttributes(params).promise();
 }
 
+
+const deleteDocument = (document: object, docId: string) => {
+  let tmpData = document
+
+  Object.keys(document).map((e) => {
+    if (document[e] == docId) {
+      delete document[e]
+    }
+  })
+
+  let newDocument = {}
+  let minusIndex = false
+  Object.keys(document).map((e, i) => {
+    if (Number(e) != i) {
+      minusIndex = true
+    }
+    if (minusIndex) {
+      newDocument[(i).toString()] = tmpData[(i + 1).toString()] ? tmpData[(i + 1).toString()] : null
+    } else {
+      newDocument[e] = tmpData[e]
+    }
+  })
+  return newDocument
+}
+
 @Service()
 export default class UserService {
 
@@ -125,6 +150,22 @@ export default class UserService {
   @Initializer()
   async init(): Promise<void> {
   }
+
+
+  async deleteDocumentById(userId: number, docId: string): Promise<any> {
+    const data = await userProfileRepository.findOne(userId)
+
+    if (data && data.document && typeof data.document == 'object') {
+      let newDocument = deleteDocument(data.document, docId)
+      console.log("New document affter delete : ", newDocument)
+      data.document = typeof newDocument == 'object' && Object.keys(newDocument).length > 0 ? newDocument : null
+      await userProfileRepository.update(data.id, data)
+      return { message: true }
+    } else {
+      return { message: false }
+    }
+  }
+
 
   // Only normal user, username is phone number
   async createNormalUser(data: AddNormalUser): Promise<any> {

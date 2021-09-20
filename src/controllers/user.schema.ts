@@ -540,3 +540,25 @@ export const addTermOfServiceSchema: FastifySchema = {
     }
   }
 }
+
+export const schemaDeleteUserDocumentById: FastifySchema = {
+  headers: {
+    type: 'object',
+    properties: {
+      authorization: { type: 'string' }
+    },
+    require: ['authorization']
+  },
+  params: { 
+    userId: { type: 'string' },
+    docId: { type: 'string' } },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        message: { type: 'boolean' }
+      },
+      additionalProperties: false
+    }
+  }
+}

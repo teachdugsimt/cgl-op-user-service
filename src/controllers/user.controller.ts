@@ -15,7 +15,8 @@ import {
   logoutSchema,
   userStatusSchema,
   documentStatusSchema,
-  userSummarySchema, userSummarySchemaWithoutAuthorize, termOfServicePartnerSchema, addTermOfServiceSchema
+  userSummarySchema, userSummarySchemaWithoutAuthorize, termOfServicePartnerSchema, addTermOfServiceSchema,
+  schemaDeleteUserDocumentById
 } from './user.schema';
 import TermOfServiceUserService from '../services/term-of-service-user.service'
 import TermOfServiceService from '../services/term-of-service.service'
@@ -477,6 +478,27 @@ export default class UserController {
       }
       return {}
     } catch (err: any) {
+      throw new Error(err)
+    }
+  }
+
+  @DELETE({
+    url: '/:userId/document/:docId',
+    options: {
+      schema: schemaDeleteUserDocumentById
+    }
+  })
+  async deleteUserDocumentById(req: FastifyRequest<{ Params: { userId: string, docId: string } }>, reply: FastifyReply): Promise<any> {
+    try {
+      if (req.params.userId && req.params.docId) {
+        const decodeId = util.decodeUserId(req.params.userId)
+        const result = await this.userService.deleteDocumentById(decodeId, req.params.docId)
+        console.log("Result delete user document : ", result)
+        return result
+      } else reply.status(400).send({
+        message: "bad request"
+      })
+    } catch (err) {
       throw new Error(err)
     }
   }
