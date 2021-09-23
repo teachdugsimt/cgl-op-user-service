@@ -106,6 +106,10 @@ export default class AuthenticationController {
           const myUsername = userInformation?.phoneNumber ? userInformation.username : username;
           console.log('myUsername :>> ', myUsername);
           const token = await this.authenService.signin(myUsername, password);
+          delete userProfile.attachCodeCitizenId
+          delete userProfile.userType
+          delete userProfile.document
+          delete userProfile.documentStatus
           return {
             message: '',
             responseCode: 1,

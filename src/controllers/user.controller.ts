@@ -141,7 +141,23 @@ export default class UserController {
       if (userId !== userIdFromToken) {
         return reply.status(401).send({ statusCode: 401, error: 'Unauthorized', message: 'User id does not match' });
       }
-      return await this.userService.getProfileByUserId(userId);
+      let result: any = await this.userService.getProfileByUserId(userId);
+      delete result.userType
+      delete result.document
+      delete result.documentStatus
+      delete result.legalType
+      delete result.files
+      delete result.attachCodeCitizenId
+      delete result.roleName
+      delete result.confirmationToken
+      delete result.deviceToken
+      delete result.enabled
+      delete result.createdAt
+      delete result.updatedAt
+      delete result.createdBy
+      delete result.updatedBy
+      console.log("Result : ", result)
+      return result
     } catch (err: any) {
       throw new Error(err)
     }
