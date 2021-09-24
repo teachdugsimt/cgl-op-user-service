@@ -549,9 +549,12 @@ export const schemaDeleteUserDocumentById: FastifySchema = {
     },
     require: ['authorization']
   },
-  params: { 
-    userId: { type: 'string' },
-    docId: { type: 'string' } },
+  params: {
+    userId: { type: 'string' }
+  },
+  querystring: {
+    docId: { type: 'string' }
+  },
   response: {
     200: {
       type: 'object',

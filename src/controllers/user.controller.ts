@@ -499,16 +499,16 @@ export default class UserController {
   }
 
   @DELETE({
-    url: '/:userId/document/:docId',
+    url: '/:userId/document',
     options: {
       schema: schemaDeleteUserDocumentById
     }
   })
-  async deleteUserDocumentById(req: FastifyRequest<{ Params: { userId: string, docId: string } }>, reply: FastifyReply): Promise<any> {
+  async deleteUserDocumentById(req: FastifyRequest<{ Params: { userId: string }, Querystring: { docId: string } }>, reply: FastifyReply): Promise<any> {
     try {
-      if (req.params.userId && req.params.docId) {
+      if (req.params.userId && req.query.docId) {
         const decodeId = util.decodeUserId(req.params.userId)
-        const result = await this.userService.deleteDocumentById(decodeId, req.params.docId)
+        const result = await this.userService.deleteDocumentById(decodeId, req.query.docId)
         console.log("Result delete user document : ", result)
         return result
       } else reply.status(400).send({
