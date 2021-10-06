@@ -138,7 +138,7 @@ const deleteDocument = (document: object, docId: string) => {
       newDocument[e] = tmpData[e]
     }
   })
-  // return newDocument
+  return newDocument
 }
 
 @Service()
