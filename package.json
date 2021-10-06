@@ -63,10 +63,5 @@
     "ts-jest": "^26.5.5",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.4"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "sonar-scanner -Dsonar.projectKey=cgl-op-user-service -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=e55df2e6e76b0201c3c63885b43677ef576ed757"
-    }
   }
 }
