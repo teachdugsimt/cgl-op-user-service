@@ -128,7 +128,7 @@ const deleteDocument = (document: object, docId: string) => {
 
   let newDocument = {}
   let minusIndex = false
-  Object.keys(document).map((e, i) => {
+  Object.keys(document).forEach((e, i) => {
     if (Number(e) != i) {
       minusIndex = true
     }
@@ -138,7 +138,7 @@ const deleteDocument = (document: object, docId: string) => {
       newDocument[e] = tmpData[e]
     }
   })
-  return newDocument
+  // return newDocument
 }
 
 @Service()
