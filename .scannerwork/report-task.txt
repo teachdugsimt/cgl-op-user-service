@@ -2,5 +2,5 @@ projectKey=cgl-op-user-service
 serverUrl=http://13.213.8.69:9000
 serverVersion=9.1.0.47736
 dashboardUrl=http://13.213.8.69:9000/dashboard?id=cgl-op-user-service
-ceTaskId=AXxVE4KgIzi10B77atX7
-ceTaskUrl=http://13.213.8.69:9000/api/ce/task?id=AXxVE4KgIzi10B77atX7
+ceTaskId=AXxVIMDKIzi10B77atYe
+ceTaskUrl=http://13.213.8.69:9000/api/ce/task?id=AXxVIMDKIzi10B77atYe
