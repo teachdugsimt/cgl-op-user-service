@@ -356,11 +356,15 @@ export default class UserService {
         await updateUsername(userDetailBackup.email, email, 'email');
       }
 
+      const fileManagementUrl = process.env.API_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod';
+      if (avatar) {
+        await axios.post(`${fileManagementUrl}/api/v1/media/confirm`, { url: [avatar] });
+      }
+
       if (url?.length) {
         const arrDocument = userDetailBackup?.document ? Object.values(userDetailBackup.document) : [];
         const newArrDocument = [...arrDocument, ...url]
         data = { ...data, document: JSON.parse(JSON.stringify(Object.assign({}, newArrDocument))), documentStatus: 'WAIT_FOR_VERIFIED' };
-        const fileManagementUrl = process.env.API_URL || 'https://2kgrbiwfnc.execute-api.ap-southeast-1.amazonaws.com/prod';
         await axios.post(`${fileManagementUrl}/api/v1/media/confirm`, { url: url });
       }
       await acceptTermAndConditionResult;
