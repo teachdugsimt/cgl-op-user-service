@@ -49,6 +49,10 @@ export const otpVerifySchema: FastifySchema = {
             avatar: { type: 'string' },
             attachCodeCitizenId: { type: 'string' },
             documentStatus: { type: 'string' },
+            document: {
+              type: "object",
+              additionalProperties: { type: "string" }, nullable: true
+            },
           }
         },
         token: {
