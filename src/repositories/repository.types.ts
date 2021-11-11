@@ -222,4 +222,6 @@ export interface UserProfileCreateEntity {
 
   document?: object
 
+  lineId?: string
+
 }

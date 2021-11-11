@@ -565,3 +565,37 @@ export const schemaDeleteUserDocumentById: FastifySchema = {
     }
   }
 }
+
+export const checkLineAccountJobSchema: FastifySchema = {
+  querystring: {
+    lineId: { type: 'string' },
+    jobId: { type: 'string' },
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {},
+      additionalProperties: true
+    }
+  }
+}
+
+export const addUserLineOASchema: FastifySchema = {
+  body: {
+    type: 'object',
+    properties: {
+      lineId: { type: 'string' },
+      jobId: { type: 'string' },
+      fullName: { type: 'string' },
+      phoneNumber: { type: 'string' }
+    },
+    require: ['lineId', 'jobId', 'fullName', 'phoneNumber']
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {},
+      additionalProperties: true
+    }
+  }
+}

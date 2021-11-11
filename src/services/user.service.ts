@@ -11,6 +11,7 @@ import UserJobSummaryRepository from '../repositories/user-summary.repository'
 import TermOfServiceUserService from './term-of-service-user.service';
 import _ from 'lodash'
 import e from 'cors';
+import jwt from 'jsonwebtoken';
 interface AddNormalUser {
   phoneNumber: string
   fullName?: string
@@ -54,6 +55,13 @@ interface UpdateUserProfile {
   userType?: 'SHIPPER' | 'CARRIER' | 'BOTH'
   attachCodeCitizenId?: string
   acceptTermAndCondition?: string
+}
+
+interface IUpdateUserLineId {
+  jobId: string
+  lineId: string
+  phoneNumber: string
+  fullName: string
 }
 
 type UserDocumentStatus = "NO_DOCUMENT" | "WAIT_FOR_VERIFIED" | "VERIFIED" | "REJECTED";
@@ -140,6 +148,13 @@ const deleteDocument = (document: object, docId: string) => {
   })
   return newDocument
 }
+
+const temporaryAuthorizerToken = (userId: number): any => jwt.sign(
+  {
+    'custom:userId': utility.encodeUserId(userId)
+  },
+  'secret_private_key'
+)
 
 @Service()
 export default class UserService {
@@ -512,6 +527,60 @@ export default class UserService {
     } else {
       return null;
     }
+  }
+
+  async checkLineId(lineId: string, jobId: string): Promise<boolean> {
+    const user = await userProfileRepository.findOneV2({ lineId });
+    if (user) {
+      const body = { jobId, channel: 'LINEOA' };
+      await axios.post(
+        `${process.env.API_URL}/api/v1/history/call/jobs`,
+        body,
+        {
+          headers: {
+            Authorization: temporaryAuthorizerToken(user.id)
+          }
+        });
+      return true;
+    }
+    return false;
+  }
+
+  async updateOrCreateUserUsingLineId(data: IUpdateUserLineId): Promise<any> {
+    const {
+      lineId,
+      jobId,
+      phoneNumber,
+      fullName
+    } = data;
+    const user = await userProfileRepository.findOneV2({ phoneNumber });
+    let userId: number
+    if (user) {
+      await userProfileRepository.update(user.id, { fullName, lineId });
+      userId = user.id
+    } else {
+      // add new user
+      const newUser = await userProfileRepository.add({
+        phoneNumber,
+        fullName,
+        lineId,
+        createdAt: new Date(),
+        createdBy: 'line_system'
+      });
+      // add new user role
+      await userRoleService.addRoleToUser(newUser.id);
+      userId = newUser.id
+    }
+    const body = { jobId, channel: 'LINEOA' };
+    await axios.post(
+      `${process.env.API_URL}/api/v1/history/call/jobs`,
+      body,
+      {
+        headers: {
+          Authorization: temporaryAuthorizerToken(userId)
+        }
+      });
+    return true;
   }
 
   @Destructor()

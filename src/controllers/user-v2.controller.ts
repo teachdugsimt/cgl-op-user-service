@@ -1,7 +1,9 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { Controller, GET, getInstanceByToken } from 'fastify-decorators';
+import { Controller, GET, getInstanceByToken, POST } from 'fastify-decorators';
 import {
   getUserOwnerSchema,
+  checkLineAccountJobSchema,
+  addUserLineOASchema
 } from './user.schema';
 import Utility from 'utility-layer/dist/security'
 import UserService from '../services/user.service';
@@ -31,5 +33,45 @@ export default class UserV2Controller {
     }
   }
 
+  @GET({
+    url: '/check-line-oa',
+    options: {
+      schema: checkLineAccountJobSchema
+    }
+  })
+  async checkLineAccount(req: FastifyRequest<{ Querystring: { lineId: string, jobId: string } }>, reply: FastifyReply): Promise<object> {
+    try {
+      const { lineId, jobId } = req.query;
+      const result = await this.userService.checkLineId(lineId, jobId);
+      return {
+        isCall: result
+      }
+    } catch (err: any) {
+      throw new Error(err)
+    }
+  }
 
+  @POST({
+    url: '/add-line-oa',
+    options: {
+      schema: addUserLineOASchema
+    }
+  })
+  async addUserLineOA(req: FastifyRequest<{
+    Body: {
+      lineId: string,
+      jobId: string,
+      fullName: string,
+      phoneNumber: string
+    }
+  }>, reply: FastifyReply): Promise<object> {
+    try {
+      const result = await this.userService.updateOrCreateUserUsingLineId(req.body);
+      return {
+        isCall: result
+      }
+    } catch (err: any) {
+      throw new Error(err)
+    }
+  }
 }

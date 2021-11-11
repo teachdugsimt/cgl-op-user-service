@@ -111,6 +111,13 @@ export class UserProfile {
   @Column("jsonb", { name: "document", nullable: true })
   document!: object | null;
 
+  @Column("character varying", {
+    name: "line_id",
+    nullable: true,
+    length: 50,
+  })
+  lineId!: string | null;
+
   userId!: string;
 
   @AfterLoad()

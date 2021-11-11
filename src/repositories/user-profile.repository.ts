@@ -20,6 +20,12 @@ export default class UserProfileRepository {
     return userProfileRepository.findOne(id, options);
   }
 
+  async findOneV2(options: Partial<UserProfile>): Promise<any> {
+    const server: any = this.instance
+    const userProfileRepository: Repository<UserProfile> = server?.db?.userProfile;
+    return userProfileRepository.findOne(options);
+  }
+
   async findOneByAttribute(attribute: UserProfileCreateEntity, options?: FindOneOptions): Promise<any> {
     const server: any = this.instance
     const userProfileRepository: Repository<UserProfile> = server?.db?.userProfile;

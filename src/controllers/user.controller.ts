@@ -514,7 +514,7 @@ export default class UserController {
       } else reply.status(400).send({
         message: "bad request"
       })
-    } catch (err) {
+    } catch (err: any) {
       throw new Error(err)
     }
   }
