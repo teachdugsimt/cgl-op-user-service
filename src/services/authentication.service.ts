@@ -156,7 +156,7 @@ export default class AuthenticationService {
 
   async getUserProfile(filter: FilterUserProfile): Promise<any> {
     const options = {
-      select: ['id', 'fullName', 'phoneNumber', 'email', 'userType', 'avatar', 'attachCodeCitizenId', 'documentStatus', 'document']
+      select: ['id', 'fullName', 'phoneNumber', 'email', 'userType', 'avatar', 'attachCodeCitizenId', 'documentStatus', 'document', 'lineId']
     }
     const userProfile = await userRepository.findOneByAttribute(filter, options);
     console.log("User Profile service :: ", userProfile)
@@ -171,7 +171,8 @@ export default class AuthenticationService {
       avatar: userProfile.avatar,
       attachCodeCitizenId: userProfile.attachCodeCitizenId,
       documentStatus: userProfile.documentStatus,
-      document: userProfile.document
+      document: userProfile.document,
+      lineId: userProfile.lineId
     }
   }
 

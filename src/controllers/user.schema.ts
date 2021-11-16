@@ -84,6 +84,7 @@ export const getUserOwnerSchema: FastifySchema = {
         files: { type: 'array', items: { type: 'string' } },
         attachCodeCitizenId: { type: 'string' },
         roleName: { type: 'array', items: { type: 'string' } },
+        lineId: { type: 'string' }
       },
       additionalProperties: false
     }
@@ -179,6 +180,7 @@ export const getUserByUserIdSchema: FastifySchema = {
         files: { type: 'array', items: { type: 'string' } },
         attachCodeCitizenId: { type: 'string' },
         roleName: { type: 'array', items: { type: 'string' } },
+        lineId: { type: 'string' }
       },
       additionalProperties: false
     }

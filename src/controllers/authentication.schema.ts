@@ -53,6 +53,7 @@ export const otpVerifySchema: FastifySchema = {
               type: "object",
               additionalProperties: { type: "string" }, nullable: true
             },
+            lineId: { type: 'string' }
           }
         },
         token: {
