@@ -3,10 +3,22 @@ import { Controller, GET, getInstanceByToken, POST } from 'fastify-decorators';
 import {
   getUserOwnerSchema,
   checkLineAccountJobSchema,
-  addUserLineOASchema
+  addUserLineOASchema,
+  checkLineAccountJobSchema2, bookingSchema2
 } from './user.schema';
 import Utility from 'utility-layer/dist/security'
 import UserService from '../services/user.service';
+
+export interface PostBookingLine {
+  jobId: string
+  truckId?: string
+  requesterType: "JOB_OWNER" | "TRUCK_OWNER" | null
+  accepterUserId: string
+  requesterUserId: string
+  phoneNumber: string
+  fullName: string
+  lineId: string
+}
 
 const util = new Utility();
 @Controller({ route: '/api/v2/users' })
@@ -39,13 +51,29 @@ export default class UserV2Controller {
       schema: checkLineAccountJobSchema
     }
   })
-  async checkLineAccount(req: FastifyRequest<{ Querystring: { lineId: string, jobId: string } }>, reply: FastifyReply): Promise<object> {
+  async checkLineAccount(req: FastifyRequest<{ Querystring: { lineId: string, jobId: string, saveHistory?: boolean } }>, reply: FastifyReply): Promise<object> {
     try {
-      const { lineId, jobId } = req.query;
-      const result = await this.userService.checkLineId(lineId, jobId);
+      const { lineId, jobId, saveHistory } = req.query;
+      const result = await this.userService.checkLineId(lineId, jobId, saveHistory);
       return {
         isCall: result
       }
+    } catch (err: any) {
+      throw new Error(err)
+    }
+  }
+
+  @GET({
+    url: '/check-line-oa-v2',
+    options: {
+      schema: checkLineAccountJobSchema2
+    }
+  })
+  async checkLineAccountV2(req: FastifyRequest<{ Querystring: { lineId: string } }>, reply: FastifyReply): Promise<object> {
+    try {
+      const { lineId } = req.query;
+      const result = await this.userService.checkLineIdBeforeBooking(lineId);
+      return result
     } catch (err: any) {
       throw new Error(err)
     }
@@ -70,6 +98,21 @@ export default class UserV2Controller {
       return {
         isCall: result
       }
+    } catch (err: any) {
+      throw new Error(err)
+    }
+  }
+  @POST({
+    url: '/add-line-oa-v2',
+    options: {
+      schema: bookingSchema2
+    }
+  })
+  async addLineOAWhenBookingLine(req: FastifyRequest<{ Body: PostBookingLine }>, reply: FastifyReply): Promise<Object> {
+    try {
+      console.log("Add line OA when booking params :: ", req.body)
+      const result = await this.userService.updateOrCreateUserUsingLineIdV2(req.body);
+      return result
     } catch (err: any) {
       throw new Error(err)
     }

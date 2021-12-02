@@ -9,6 +9,7 @@ import { FindManyOptions, FindOperator, ILike, Like } from 'typeorm';
 import { UserProfileCreateEntity } from '../repositories/repository.types';
 import UserJobSummaryRepository from '../repositories/user-summary.repository'
 import TermOfServiceUserService from './term-of-service-user.service';
+import { PostBookingLine } from '../controllers/user-v2.controller'
 import _ from 'lodash'
 import e from 'cors';
 import jwt from 'jsonwebtoken';
@@ -62,6 +63,14 @@ interface IUpdateUserLineId {
   lineId: string
   phoneNumber: string
   fullName: string
+}
+
+interface IPostBookingLineOA {
+  jobId: number
+  truckId: string
+  requesterType: string
+  requesterUserId: string
+  accepterUserId: string
 }
 
 type UserDocumentStatus = "NO_DOCUMENT" | "WAIT_FOR_VERIFIED" | "VERIFIED" | "REJECTED";
@@ -529,9 +538,9 @@ export default class UserService {
     }
   }
 
-  async checkLineId(lineId: string, jobId: string): Promise<boolean> {
+  async checkLineId(lineId: string, jobId: string, saveHistory?: boolean): Promise<boolean> {
     const user = await userProfileRepository.findOneV2({ lineId });
-    if (user) {
+    if (user && typeof saveHistory != 'undefined' && saveHistory == true) {
       const body = { jobId, channel: 'LINEOA' };
       await axios.post(
         `${process.env.API_URL}/api/v1/history/call/jobs`,
@@ -544,6 +553,61 @@ export default class UserService {
       return true;
     }
     return false;
+  }
+
+  async checkLineIdBeforeBooking(lineId: string): Promise<any> {
+    const user: any = await userProfileRepository.findOneV2({ lineId });
+    if (user) {
+      return { userId: utility.encodeUserId(user?.id) };
+    }
+    return { userId: null };
+  }
+
+  async updateOrCreateUserUsingLineIdV2(data: PostBookingLine): Promise<any> {
+    const {
+      phoneNumber,
+      fullName,
+      lineId,
+      jobId,
+      truckId,
+      requesterType,
+      requesterUserId,
+      accepterUserId,
+    } = data;
+    const user = await userProfileRepository.findOneV2({ phoneNumber });
+    let userId: number
+    if (user) {
+      await userProfileRepository.update(user.id, { fullName, lineId });
+      userId = user.id
+    } else {
+      // add new user
+      const newUser = await userProfileRepository.add({
+        phoneNumber,
+        fullName,
+        lineId,
+        createdAt: new Date(),
+        createdBy: 'line_system'
+      });
+      // add new user role
+      await userRoleService.addRoleToUser(newUser.id);
+      userId = newUser.id
+    }
+    const body = {
+      jobId,
+      truckId,
+      requesterType,
+      requesterUserId: utility.encodeUserId(userId),
+      accepterUserId,
+    };
+    await axios.post(
+      `${process.env.API_URL}/api/v1/booking/line-booking`,
+      body,
+      {
+        headers: {
+          Authorization: temporaryAuthorizerToken(userId)
+        }
+      });
+    return 1;
   }
 
   async updateOrCreateUserUsingLineId(data: IUpdateUserLineId): Promise<any> {

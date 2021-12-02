@@ -572,6 +572,20 @@ export const checkLineAccountJobSchema: FastifySchema = {
   querystring: {
     lineId: { type: 'string' },
     jobId: { type: 'string' },
+    saveHistory: { type: 'boolean', nullable: true }
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {},
+      additionalProperties: true
+    }
+  }
+}
+
+export const checkLineAccountJobSchema2: FastifySchema = {
+  querystring: {
+    lineId: { type: 'string' },
   },
   response: {
     200: {
@@ -598,6 +612,33 @@ export const addUserLineOASchema: FastifySchema = {
       type: 'object',
       properties: {},
       additionalProperties: true
+    }
+  }
+}
+
+
+
+export const bookingSchema2: FastifySchema = {
+  body: {
+    type: 'object',
+    properties: {
+      jobId: { type: 'string' },
+      truckId: { type: 'string', nullable: true },
+      requesterType: { type: 'string' },
+      accepterUserId: { type: 'string' },
+      requesterUserId: { type: 'string' },
+      lineId: { type: 'string' },
+      fullName: { type: 'string' },
+      phoneNumber: { type: 'string' },
+
+
+    },
+    require: ['jobId', 'accepterUserId', 'requesterType', 'requesterUserId']
+  },
+  response: {
+    200: {
+      type: 'number',
+      additionalProperties: false
     }
   }
 }
